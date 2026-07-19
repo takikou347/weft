@@ -167,6 +167,68 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- links(双方向リンク)の分離: 片端でも見えないアイテムを含むリンクは見えない
+-- ---------------------------------------------------------------------------
+
+reset role;
+set local role authenticated;
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+
+-- A が自分のアイテム2件目を作り、1件目とリンクする
+insert into public.items (id, type, owner_id, origin_space_id, occurred_on, title)
+select
+  '10000000-0000-4000-8000-000000000002', 'event',
+  '00000000-0000-4000-8000-00000000000a', s.id, '2026-07-19', 'Aの予定'
+from public.spaces s
+where s.created_by = '00000000-0000-4000-8000-00000000000a' and s.type = 'personal';
+
+insert into public.links (item_id_a, item_id_b, created_by)
+values (
+  '10000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  '00000000-0000-4000-8000-00000000000a'
+);
+
+do $$
+begin
+  if (select count(*) from public.links) <> 1 then
+    raise exception 'リンク: 作成者 A にリンクが見えない';
+  end if;
+end;
+$$;
+
+-- B からはリンクの存在自体が見えない(F-09-5)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if (select count(*) from public.links) <> 0 then
+    raise exception 'RLS違反: B に A のリンクが見えている';
+  end if;
+end;
+$$;
+
+-- B は他人のアイテムへのリンクを作れない
+do $$
+declare
+  ok boolean := false;
+begin
+  begin
+    insert into public.links (item_id_a, item_id_b, created_by)
+    values (
+      '10000000-0000-4000-8000-000000000001',
+      '10000000-0000-4000-8000-000000000002',
+      '00000000-0000-4000-8000-00000000000b'
+    );
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: B が他人のアイテム同士のリンクを作成できている';
+  end if;
+end;
+$$;
+
 -- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;
