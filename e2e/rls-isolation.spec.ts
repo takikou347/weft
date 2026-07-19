@@ -49,10 +49,11 @@ test("ユーザーAが記録を作成し、自分では見える", async ({ brow
   await page.getByLabel("題(なくてもかまいません)").fill(aliceDiary.title);
   await page.getByLabel("本文").fill(aliceDiary.body);
   await page.getByRole("button", { name: "帳面に記す" }).click();
-  await page.waitForURL("/");
+  await page.waitForURL(/\/days\/\d{4}-\d{2}-\d{2}/);
 
-  await expect(page.getByText(aliceDiary.title)).toBeVisible();
-  await expect(page.getByText(aliceDiary.body)).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByText(aliceDiary.title).first()).toBeVisible();
+  await expect(page.getByText(aliceDiary.body).first()).toBeVisible();
 
   await context.close();
 });
