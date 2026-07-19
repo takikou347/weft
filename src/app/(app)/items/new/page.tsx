@@ -3,16 +3,9 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { createDiaryItem, type ItemFormState } from "../actions";
+import { todayIso } from "@/lib/date";
 
 const initialState: ItemFormState = { error: null };
-
-function today(): string {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 export default function NewItemPage() {
   const [state, formAction, pending] = useActionState(
@@ -39,7 +32,7 @@ export default function NewItemPage() {
           name="occurred_on"
           type="date"
           required
-          defaultValue={today()}
+          defaultValue={todayIso()}
           className="mt-1 border-b border-keisen bg-transparent py-2 outline-none focus:border-ai"
         />
 

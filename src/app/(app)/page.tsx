@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateJa } from "@/lib/date";
 
 const PAGE_SIZE = 20;
 
@@ -61,7 +62,7 @@ export default async function HomePage({
             <li key={item.id} className="px-5 py-4">
               <div className="flex items-baseline gap-3 text-sm text-usuzumi">
                 <time dateTime={item.occurred_on}>
-                  {formatDate(item.occurred_on)}
+                  {formatDateJa(item.occurred_on)}
                 </time>
                 <span className="border border-keisen px-1.5 text-xs">
                   {TYPE_LABELS[item.type] ?? item.type}
@@ -105,9 +106,4 @@ export default async function HomePage({
       )}
     </div>
   );
-}
-
-function formatDate(isoDate: string): string {
-  const [y, m, d] = isoDate.split("-");
-  return `${y}年${Number(m)}月${Number(d)}日`;
 }
