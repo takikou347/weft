@@ -23,11 +23,26 @@ export default async function SpaceLayout({
   if (!space) notFound();
   const color = spaceColor(space);
 
+  // スペースタイプ別の機能(§4.3)
   const tabs = [
     { href: `/spaces/${id}`, label: "回覧板" },
     { href: `/spaces/${id}/calendar`, label: "こよみ" },
-    { href: `/spaces/${id}/album`, label: "アルバム" },
-    { href: `/spaces/${id}/settlements`, label: "精算" },
+    ...(space.type === "group"
+      ? [
+          { href: `/spaces/${id}/album`, label: "アルバム" },
+          { href: `/spaces/${id}/settlements`, label: "精算" },
+        ]
+      : []),
+    ...(space.type === "organization"
+      ? [{ href: `/spaces/${id}/projects`, label: "しごと" }]
+      : []),
+    ...(space.type === "project"
+      ? [
+          { href: `/spaces/${id}/tasks`, label: "つとめ" },
+          { href: `/spaces/${id}/budget`, label: "予実" },
+          { href: `/spaces/${id}/docs`, label: "おぼえ" },
+        ]
+      : []),
     { href: `/spaces/${id}/members`, label: "なかま" },
     { href: `/spaces/${id}/settings`, label: "設定" },
   ];

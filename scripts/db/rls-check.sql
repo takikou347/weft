@@ -456,6 +456,136 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- P5: 組織・プロジェクトの分離(§6.3: 組織メンバーでもプロジェクト内は見えない)
+-- ---------------------------------------------------------------------------
+
+-- A が組織を作り、B を組織へ、プロジェクトを作る(BはプロジェクトにHは入れない)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+do $$
+declare
+  org uuid;
+  proj uuid;
+begin
+  org := public.create_organization('検証組織');
+  proj := public.create_project(org, '検証プロジェクト');
+
+  -- 後続チェック用に固定IDへ差し替えはできないため一時表に控える
+  create temporary table _p5 (org uuid, proj uuid) on commit drop;
+  insert into _p5 values (org, proj);
+end;
+$$;
+
+-- B を組織メンバーにする(招待受諾の代わりに直接insert: definer相当の検証簡略化)
+reset role;
+insert into public.space_members (space_id, user_id, role)
+select org, '00000000-0000-4000-8000-00000000000b', 'member' from _p5;
+set local role authenticated;
+
+-- A がプロジェクトにタスク(担当者B…はプロジェクト非メンバーなので一旦Aを担当)を共有付きで作る
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+do $$
+declare
+  proj uuid;
+  task_id uuid := '10000000-0000-4000-8000-000000000005';
+begin
+  select p.proj into proj from _p5 p;
+  insert into public.items (id, type, owner_id, origin_space_id, occurred_on, title, payload)
+  values (task_id, 'task', '00000000-0000-4000-8000-00000000000a', proj, '2026-07-25', '資料づくり',
+          jsonb_build_object('status', 'todo'));
+  insert into public.item_shares (item_id, space_id, shared_by)
+  values (task_id, proj, '00000000-0000-4000-8000-00000000000a');
+end;
+$$;
+
+-- 組織メンバー B にはプロジェクトのアイテムが見えない(プロジェクト非メンバー)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if exists (select 1 from public.items where id = '10000000-0000-4000-8000-000000000005') then
+    raise exception 'RLS違反: 組織メンバーがプロジェクト内アイテムを見られている(§6.3違反)';
+  end if;
+end;
+$$;
+
+-- B をプロジェクトへ加えると見えるようになり、担当者ならステータスを変えられる
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+do $$
+declare
+  proj uuid;
+begin
+  select p.proj into proj from _p5 p;
+  perform public.add_project_member(proj, '00000000-0000-4000-8000-00000000000b');
+  update public.items
+  set payload = payload || jsonb_build_object('assignee', '00000000-0000-4000-8000-00000000000b')
+  where id = '10000000-0000-4000-8000-000000000005';
+end;
+$$;
+
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if not exists (select 1 from public.items where id = '10000000-0000-4000-8000-000000000005') then
+    raise exception 'プロジェクト参加後もタスクが見えない';
+  end if;
+  -- 担当者としてステータス変更(§6.3の唯一の例外)
+  perform public.update_task_status('10000000-0000-4000-8000-000000000005', 'doing');
+  if (select payload ->> 'status' from public.items where id = '10000000-0000-4000-8000-000000000005') <> 'doing' then
+    raise exception '担当者によるステータス変更が反映されていない';
+  end if;
+end;
+$$;
+
+-- 担当者でも本文の書き換え(update)はできない
+do $$
+begin
+  update public.items set title = '書き換え' where id = '10000000-0000-4000-8000-000000000005';
+  if exists (select 1 from public.items where id = '10000000-0000-4000-8000-000000000005' and title = '書き換え') then
+    raise exception 'RLS違反: 担当者がタスク本文を書き換えられている';
+  end if;
+end;
+$$;
+
+-- 予算の編集は owner/admin のみ(§7)。member の B は書けない
+do $$
+declare
+  proj uuid;
+  ok boolean := false;
+begin
+  select p.proj into proj from _p5 p;
+  begin
+    insert into public.budgets (space_id, category, planned_amount)
+    values (proj, '外注', 100000);
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: member が予算を書けている';
+  end if;
+end;
+$$;
+
+-- owner の A は予算を書け、実績集計RPCも動く
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+do $$
+declare
+  proj uuid;
+  expense_id uuid := '10000000-0000-4000-8000-000000000006';
+begin
+  select p.proj into proj from _p5 p;
+  insert into public.budgets (space_id, category, planned_amount)
+  values (proj, '交通', 50000);
+  insert into public.items (id, type, owner_id, origin_space_id, occurred_on, title, payload)
+  values (expense_id, 'expense', '00000000-0000-4000-8000-00000000000a', proj, '2026-07-20', '新幹線',
+          '{"amount": 28000, "kind": "expense", "category": "交通"}'::jsonb);
+  insert into public.item_shares (item_id, space_id, shared_by)
+  values (expense_id, proj, '00000000-0000-4000-8000-00000000000a');
+  if (select total from public.space_expense_summary(proj) where kind = 'expense') <> 28000 then
+    raise exception '実績集計RPCが正しくない';
+  end if;
+end;
+$$;
+
 -- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;

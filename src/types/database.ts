@@ -115,6 +115,25 @@ export type ExpensePayload = {
 
 export type TaskPayload = {
   status: "todo" | "doing" | "done";
+  assignee?: string; // user_id(プロジェクトタスクの担当者)
+};
+
+export type ProjectMeta = {
+  space_id: string;
+  status: "planned" | "active" | "done";
+  start_on: string | null;
+  end_on: string | null;
+  budget_total: number;
+  updated_at: string;
+};
+
+export type Budget = {
+  id: string;
+  space_id: string;
+  category: string;
+  planned_amount: number;
+  period: string | null;
+  created_at: string;
 };
 
 export type DiaryPayload = {
@@ -248,6 +267,25 @@ export type Database = {
         Update: Partial<Pick<ExpenseCategory, "name" | "position">>;
         Relationships: [];
       };
+      projects_meta: {
+        Row: ProjectMeta;
+        Insert: never;
+        Update: Partial<
+          Pick<ProjectMeta, "status" | "start_on" | "end_on" | "budget_total">
+        >;
+        Relationships: [];
+      };
+      budgets: {
+        Row: Budget;
+        Insert: {
+          space_id: string;
+          category: string;
+          planned_amount: number;
+          period?: string | null;
+        };
+        Update: Partial<Pick<Budget, "planned_amount" | "period">>;
+        Relationships: [];
+      };
       settlements: {
         Row: Settlement;
         Insert: {
@@ -288,6 +326,30 @@ export type Database = {
           space_name: string;
           space_type: SpaceType;
           expired: boolean;
+        }[];
+      };
+      create_organization: {
+        Args: { org_name: string };
+        Returns: string;
+      };
+      create_project: {
+        Args: { org_id: string; project_name: string };
+        Returns: string;
+      };
+      add_project_member: {
+        Args: { project_id: string; target_user_id: string };
+        Returns: undefined;
+      };
+      update_task_status: {
+        Args: { target_item_id: string; new_status: string };
+        Returns: undefined;
+      };
+      space_expense_summary: {
+        Args: { target_space_id: string };
+        Returns: {
+          kind: string;
+          total: number;
+          entry_count: number;
         }[];
       };
     };

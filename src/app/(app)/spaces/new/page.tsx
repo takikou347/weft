@@ -11,16 +11,41 @@ export default function NewSpacePage() {
 
   return (
     <div>
-      <h2 className="font-serif text-2xl">つどいをつくる</h2>
+      <h2 className="font-serif text-2xl">あたらしいつながり</h2>
       <p className="mt-1 text-sm text-usuzumi">
-        友だち・家族・サークルの回覧板になります。あなたが差し出した記録だけが、なかまに見えます。
+        差し出した記録だけが、なかまに見えます。
       </p>
 
       <form
         action={formAction}
         className="mt-6 border border-keisen bg-paper px-6 py-8"
       >
-        <label className="block text-sm" htmlFor="name">
+        <fieldset>
+          <legend className="text-sm">かたち</legend>
+          <div className="mt-1 flex flex-col gap-2 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="type"
+                value="group"
+                defaultChecked
+                className="accent-ai"
+              />
+              つどい(友だち・家族・サークル)
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="type"
+                value="organization"
+                className="accent-ai"
+              />
+              つとめ先(チームの仕事場。配下にしごとを持てます)
+            </label>
+          </div>
+        </fieldset>
+
+        <label className="mt-6 block text-sm" htmlFor="name">
           つどいの名前
         </label>
         <input

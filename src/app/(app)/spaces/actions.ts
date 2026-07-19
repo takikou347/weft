@@ -8,22 +8,24 @@ export type SpaceFormState = {
   error: string | null;
 };
 
-// F-02-1 グループの作成(作成者が owner)
+// F-02-1 グループ・組織の作成(作成者が owner)
 export async function createGroup(
   _prev: SpaceFormState,
   formData: FormData,
 ): Promise<SpaceFormState> {
   const name = String(formData.get("name") ?? "").trim();
+  const type = formData.get("type") === "organization" ? "organization" : "group";
   if (!name || name.length > 50) {
-    return { error: "グループ名は1〜50文字で入れてください。" };
+    return { error: "名前は1〜50文字で入れてください。" };
   }
 
   const supabase = await createClient();
-  const { data: spaceId, error } = await supabase.rpc("create_group", {
-    group_name: name,
-  });
+  const { data: spaceId, error } =
+    type === "organization"
+      ? await supabase.rpc("create_organization", { org_name: name })
+      : await supabase.rpc("create_group", { group_name: name });
   if (error || !spaceId) {
-    console.error("create_group failed:", error?.message);
+    console.error("create space failed:", error?.message);
     return { error: "つくれませんでした。時間をおいてお試しください。" };
   }
 
