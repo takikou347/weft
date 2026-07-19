@@ -57,6 +57,44 @@ export type ItemShare = {
   shared_at: string;
 };
 
+export type Link = {
+  item_id_a: string;
+  item_id_b: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type ExpenseCategory = {
+  id: string;
+  user_id: string;
+  name: string;
+  position: number;
+  created_at: string;
+};
+
+// items.payload の type 別の形
+export type EventPayload = {
+  all_day?: boolean;
+  start_time?: string; // "HH:MM"
+  end_time?: string;
+  place?: string;
+  memo?: string;
+};
+
+export type ExpensePayload = {
+  amount: number; // 常に正の値
+  kind: "income" | "expense";
+  category: string;
+};
+
+export type TaskPayload = {
+  status: "todo" | "doing" | "done";
+};
+
+export type DiaryPayload = {
+  tags?: string[];
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -107,9 +145,39 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      links: {
+        Row: Link;
+        Insert: {
+          item_id_a: string;
+          item_id_b: string;
+          created_by: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      expense_categories: {
+        Row: ExpenseCategory;
+        Insert: {
+          user_id: string;
+          name: string;
+          position?: number;
+        };
+        Update: Partial<Pick<ExpenseCategory, "name" | "position">>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      expense_monthly_summary: {
+        Args: { target_month: string };
+        Returns: {
+          category: string;
+          kind: string;
+          total: number;
+          entry_count: number;
+        }[];
+      };
+    };
     Enums: {
       space_type: SpaceType;
       space_role: SpaceRole;

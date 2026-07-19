@@ -44,6 +44,20 @@ export default async function AppLayout({
             </form>
           </div>
         </div>
+        <nav
+          aria-label="主なページ"
+          className="mx-auto flex w-full max-w-2xl gap-5 px-4 pb-2 text-sm"
+        >
+          <Link href="/calendar" className="text-usuzumi hover:text-sumi">
+            こよみ
+          </Link>
+          <Link href="/" className="text-usuzumi hover:text-sumi">
+            帳面
+          </Link>
+          <Link href="/expenses" className="text-usuzumi hover:text-sumi">
+            家計
+          </Link>
+        </nav>
       </header>
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
         {children}
