@@ -167,16 +167,31 @@ begin
 end;
 $$;
 
--- 匿名(anon)には何も見えないこと
+-- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;
 set local request.jwt.claims to '';
 do $$
+declare
+  denied int := 0;
 begin
-  if (select count(*) from public.items) <> 0
-     or (select count(*) from public.spaces) <> 0
-     or (select count(*) from public.profiles) <> 0 then
-    raise exception 'RLS違反: 匿名ロールにデータが見えている';
+  begin
+    perform count(*) from public.items;
+  exception when insufficient_privilege then
+    denied := denied + 1;
+  end;
+  begin
+    perform count(*) from public.spaces;
+  exception when insufficient_privilege then
+    denied := denied + 1;
+  end;
+  begin
+    perform count(*) from public.profiles;
+  exception when insufficient_privilege then
+    denied := denied + 1;
+  end;
+  if denied <> 3 then
+    raise exception 'RLS違反: 匿名ロールがテーブルへアクセスできている(拒否 % / 3)', denied;
   end if;
 end;
 $$;

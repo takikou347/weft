@@ -37,8 +37,7 @@ grant usage on schema public to anon, authenticated;
 grant usage on schema auth to anon, authenticated;
 grant execute on function auth.uid() to anon, authenticated;
 
--- Supabase はテーブル作成時に anon / authenticated へ権限を自動付与する(RLSで絞る前提)
-alter default privileges in schema public
-  grant all on tables to anon, authenticated;
-alter default privileges in schema public
-  grant all on sequences to anon, authenticated;
+-- 注意: 既定権限(default privileges)による自動付与はあえて行わない。
+-- 実環境ではマイグレーション実行ロールによって既定権限が適用されない場合が
+-- あるため、テーブル権限はマイグレーション側で明示的に GRANT する方針
+-- (20260719100004_rls.sql)。このシムも同じ条件で検証する。

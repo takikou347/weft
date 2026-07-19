@@ -92,6 +92,21 @@ grant execute on function
 to authenticated;
 
 -- ---------------------------------------------------------------------------
+-- テーブル権限の明示付与
+-- Supabase の既定権限(default privileges)は、マイグレーション実行ロールに
+-- よっては新規テーブルへ適用されないため、依存せず明示的に GRANT する。
+-- 行の絞り込みはすべて下記の RLS ポリシーが担う。
+-- anon には一切付与しない(未ログインでは何も読めない)。
+-- ---------------------------------------------------------------------------
+
+grant usage on schema public to authenticated;
+grant select, update on public.profiles to authenticated;
+grant select on public.spaces to authenticated;
+grant select on public.space_members to authenticated;
+grant select, insert, update, delete on public.items to authenticated;
+grant select, insert, delete on public.item_shares to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- RLS 有効化(全テーブル。ポリシーが無い操作はすべて拒否される)
 -- ---------------------------------------------------------------------------
 
