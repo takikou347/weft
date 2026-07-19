@@ -1,8 +1,10 @@
 import type {
+  DiaryPayload,
   EventPayload,
   ExpensePayload,
   Item,
   ItemType,
+  PhotoPayload,
   TaskPayload,
 } from "@/types/database";
 
@@ -49,6 +51,34 @@ export function taskPayload(item: Item): TaskPayload {
       p.status === "doing" || p.status === "done" ? p.status : "todo",
   };
 }
+
+export function diaryPayload(item: Item): DiaryPayload {
+  return item.payload as DiaryPayload;
+}
+
+export function photoPayload(item: Item): PhotoPayload {
+  const p = item.payload as Partial<PhotoPayload>;
+  return { path: typeof p.path === "string" ? p.path : "" };
+}
+
+// F-04-4 / F-10-2 装飾の基本セット
+export const PAPER_CHOICES = [
+  { value: "plain", label: "白紙" },
+  { value: "lined", label: "便箋" },
+  { value: "grid", label: "方眼" },
+  { value: "washi", label: "生成り" },
+] as const;
+
+export const STAMP_CHOICES = ["花丸", "よき", "拝見", "感謝"] as const;
+
+// 用紙のスタイル(罫線・方眼はCSSグラデーションで描く)
+export const PAPER_CLASS: Record<string, string> = {
+  plain: "bg-paper",
+  lined:
+    "bg-paper bg-[linear-gradient(transparent_calc(1.9em-1px),#ddd6c7_calc(1.9em-1px),#ddd6c7_1.9em)] bg-[length:100%_1.9em] bg-local",
+  grid: "bg-paper bg-[linear-gradient(#eee8da_1px,transparent_1px),linear-gradient(90deg,#eee8da_1px,transparent_1px)] bg-[length:1.25em_1.25em]",
+  washi: "bg-washi",
+};
 
 export function formatYen(amount: number): string {
   return `${amount.toLocaleString("ja-JP")}円`;

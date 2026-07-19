@@ -378,6 +378,84 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- P4: 写真ストレージと立替精算の分離
+-- ---------------------------------------------------------------------------
+
+-- A が写真をアップロードし、photo アイテムを作る(未共有)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+insert into storage.objects (bucket_id, name, owner)
+values ('photos', '00000000-0000-4000-8000-00000000000a/pic1.jpg', '00000000-0000-4000-8000-00000000000a');
+insert into public.items (id, type, owner_id, origin_space_id, occurred_on, title, payload)
+select
+  '10000000-0000-4000-8000-000000000003', 'photo',
+  '00000000-0000-4000-8000-00000000000a', s.id, '2026-07-19', '山頂',
+  '{"path": "00000000-0000-4000-8000-00000000000a/pic1.jpg"}'::jsonb
+from public.spaces s
+where s.created_by = '00000000-0000-4000-8000-00000000000a' and s.type = 'personal';
+
+-- B からは(共有前は)ストレージのファイルも見えない
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if (select count(*) from storage.objects) <> 0 then
+    raise exception 'RLS違反: 未共有の写真ファイルが B に見えている';
+  end if;
+end;
+$$;
+
+-- 他人のフォルダへはアップロードできない
+do $$
+declare
+  ok boolean := false;
+begin
+  begin
+    insert into storage.objects (bucket_id, name, owner)
+    values ('photos', '00000000-0000-4000-8000-00000000000a/evil.jpg', '00000000-0000-4000-8000-00000000000b');
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: B が A のフォルダへアップロードできている';
+  end if;
+end;
+$$;
+
+-- photo アイテムを共有すると、対応するファイルも見えるようになる
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+insert into public.item_shares (item_id, space_id, shared_by)
+values ('10000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000a');
+
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if (select count(*) from storage.objects) <> 1 then
+    raise exception '共有失敗: 共有された写真のファイルが B に見えない';
+  end if;
+end;
+$$;
+
+-- 立替精算: メンバーだけが読める・記録できる
+insert into public.settlements (space_id, title, payer_id, amount, participants, created_by)
+values (
+  '20000000-0000-4000-8000-000000000001', '宿代',
+  '00000000-0000-4000-8000-00000000000b', 24000,
+  '["00000000-0000-4000-8000-00000000000a", "00000000-0000-4000-8000-00000000000b"]'::jsonb,
+  '00000000-0000-4000-8000-00000000000b'
+);
+
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+-- 部外者 D(未登録ユーザー相当のID)には見えない・書けない
+do $$
+declare
+  ok boolean := false;
+begin
+  if (select count(*) from public.settlements) <> 0 then
+    raise exception 'RLS違反: 部外者に立替記録が見えている';
+  end if;
+end;
+$$;
+
 -- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;

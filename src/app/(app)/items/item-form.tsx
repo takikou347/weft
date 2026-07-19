@@ -8,7 +8,11 @@ import {
   type ItemFormState,
 } from "./actions";
 import type { CreatableType } from "@/lib/items";
-import { TASK_STATUS_LABELS } from "@/lib/items";
+import {
+  PAPER_CHOICES,
+  STAMP_CHOICES,
+  TASK_STATUS_LABELS,
+} from "@/lib/items";
 
 const initialState: ItemFormState = { error: null };
 
@@ -33,6 +37,8 @@ type Defaults = {
   kind?: "income" | "expense";
   category?: string;
   status?: "todo" | "doing" | "done";
+  paper?: string;
+  stamp?: string;
 };
 
 const inputCls =
@@ -265,6 +271,56 @@ export function ItemForm({
               defaultValue={defaults.body}
               className="mt-1 w-full resize-y border border-keisen bg-transparent px-3 py-2 leading-relaxed outline-none focus:border-ai"
             />
+          </>
+        )}
+
+        {type === "diary" && (
+          <>
+            <fieldset className="mt-6">
+              <legend className="text-sm">用紙</legend>
+              <div className="mt-1 flex flex-wrap gap-4 text-sm">
+                {PAPER_CHOICES.map((p) => (
+                  <label key={p.value} className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      name="paper"
+                      value={p.value}
+                      defaultChecked={(defaults.paper ?? "plain") === p.value}
+                      className="accent-ai"
+                    />
+                    {p.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className="mt-4">
+              <legend className="text-sm">しるしのはんこ</legend>
+              <div className="mt-1 flex flex-wrap gap-4 text-sm">
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="stamp"
+                    value=""
+                    defaultChecked={!defaults.stamp}
+                    className="accent-ai"
+                  />
+                  なし
+                </label>
+                {STAMP_CHOICES.map((s) => (
+                  <label key={s} className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      name="stamp"
+                      value={s}
+                      defaultChecked={defaults.stamp === s}
+                      className="accent-ai"
+                    />
+                    {s}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
           </>
         )}
 

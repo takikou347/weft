@@ -49,6 +49,17 @@ function buildPayload(
       status: status === "doing" || status === "done" ? status : "todo",
     };
   }
+  if (type === "diary") {
+    const paper = String(formData.get("paper") ?? "plain");
+    const stamp = String(formData.get("stamp") ?? "").trim();
+    const decoration = {
+      ...(["plain", "lined", "grid", "washi"].includes(paper)
+        ? { paper }
+        : { paper: "plain" }),
+      ...(stamp && stamp.length <= 8 ? { stamp } : {}),
+    };
+    return { decoration };
+  }
   return {};
 }
 

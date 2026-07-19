@@ -3,14 +3,18 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
 import {
+  PAPER_CLASS,
   TASK_STATUS_LABELS,
   TYPE_LABELS,
+  diaryPayload,
   eventPayload,
   expensePayload,
   formatYen,
   itemLine,
+  photoPayload,
   taskPayload,
 } from "@/lib/items";
+import { PhotoUploader } from "../photo-uploader";
 import { createLink, deleteItem, deleteLink } from "../actions";
 import { shareItem, unshareItem } from "../../spaces/actions";
 import { spaceColor } from "@/lib/spaces";
@@ -72,6 +76,30 @@ export default async function ItemDetailPage({
         .in("id", linkedIds)
     : { data: [] as Item[] };
 
+  // 写真の表示URL(非公開バケットの署名付きURL。RLSが通る場合のみ発行される)
+  let photoUrl: string | null = null;
+  if (item.type === "photo") {
+    const { data: signed } = await supabase.storage
+      .from("photos")
+      .createSignedUrl(photoPayload(item as Item).path, 3600);
+    photoUrl = signed?.signedUrl ?? null;
+  }
+  const photoItems = (linkedItems ?? []).filter((l) => l.type === "photo");
+  const linkedPhotos = (
+    await Promise.all(
+      photoItems.map(async (p) => {
+        const { data: signed } = await supabase.storage
+          .from("photos")
+          .createSignedUrl(photoPayload(p as Item).path, 3600);
+        return signed?.signedUrl
+          ? { id: p.id, title: p.title, url: signed.signedUrl }
+          : null;
+      }),
+    )
+  ).filter((p): p is { id: string; title: string | null; url: string } =>
+    Boolean(p),
+  );
+
   // リンク追加の検索(F-09-1)
   const { data: candidates } = q
     ? await supabase
@@ -118,7 +146,25 @@ export default async function ItemDetailPage({
         )
       )}
 
-      <div className="mt-4 border border-keisen bg-paper px-6 py-6">
+      <div
+        className={`relative mt-4 border border-keisen px-6 py-6 ${
+          item.type === "diary"
+            ? (PAPER_CLASS[
+                diaryPayload(item as Item).decoration?.paper ?? "plain"
+              ] ?? "bg-paper")
+            : "bg-paper"
+        }`}
+      >
+        {item.type === "diary" &&
+          diaryPayload(item as Item).decoration?.stamp && (
+            <span
+              aria-label="はんこ"
+              className="absolute right-4 top-4 flex h-12 w-12 rotate-12 items-center justify-center rounded-full border-2 text-sm font-medium"
+              style={{ borderColor: "#b3424a", color: "#b3424a" }}
+            >
+              {diaryPayload(item as Item).decoration?.stamp}
+            </span>
+          )}
         {item.type === "expense" && (
           <ExpenseDetail item={item as Item} />
         )}
@@ -131,6 +177,14 @@ export default async function ItemDetailPage({
             </span>
           </p>
         )}
+        {item.type === "photo" && photoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={item.title ?? "写真"}
+            className="mx-auto max-h-96 w-auto max-w-full"
+          />
+        )}
         {item.body && (
           <p className="mt-3 whitespace-pre-wrap leading-loose">{item.body}</p>
         )}
@@ -138,6 +192,31 @@ export default async function ItemDetailPage({
           <p className="text-sm text-usuzumi">本文はありません。</p>
         )}
       </div>
+
+      {linkedPhotos.length > 0 && (
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {linkedPhotos.map((p) => (
+            <Link key={p.id} href={`/items/${p.id}`} className="block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={p.url}
+                alt={p.title ?? "写真"}
+                className="aspect-square w-full border border-keisen object-cover"
+              />
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {isOwner && item.type === "diary" && (
+        <div className="mt-4">
+          <PhotoUploader
+            userId={item.owner_id}
+            date={item.occurred_on}
+            linkTo={item.id}
+          />
+        </div>
+      )}
 
       {isOwner && (
         <div className="mt-4 flex items-center gap-4 text-sm">

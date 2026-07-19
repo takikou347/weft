@@ -26,6 +26,8 @@ export default async function SpaceLayout({
   const tabs = [
     { href: `/spaces/${id}`, label: "回覧板" },
     { href: `/spaces/${id}/calendar`, label: "こよみ" },
+    { href: `/spaces/${id}/album`, label: "アルバム" },
+    { href: `/spaces/${id}/settlements`, label: "精算" },
     { href: `/spaces/${id}/members`, label: "なかま" },
     { href: `/spaces/${id}/settings`, label: "設定" },
   ];

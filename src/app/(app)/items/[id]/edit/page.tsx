@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
+  diaryPayload,
   eventPayload,
   expensePayload,
   isCreatableType,
@@ -40,6 +41,7 @@ export default async function EditItemPage({
   const ev = it.type === "event" ? eventPayload(it) : undefined;
   const ex = it.type === "expense" ? expensePayload(it) : undefined;
   const tk = it.type === "task" ? taskPayload(it) : undefined;
+  const dy = it.type === "diary" ? diaryPayload(it) : undefined;
 
   return (
     <ItemForm
@@ -60,6 +62,8 @@ export default async function EditItemPage({
         kind: ex?.kind,
         category: ex?.category,
         status: tk?.status,
+        paper: dy?.decoration?.paper,
+        stamp: dy?.decoration?.stamp,
       }}
       backHref={`/items/${it.id}`}
     />

@@ -119,6 +119,31 @@ export type TaskPayload = {
 
 export type DiaryPayload = {
   tags?: string[];
+  // F-04-4 / F-10-2 装飾(基本セット)
+  decoration?: {
+    paper?: "plain" | "lined" | "grid" | "washi";
+    stamp?: string;
+  };
+};
+
+export type PhotoPayload = {
+  path: string; // storage 'photos' バケット内のパス({user_id}/{uuid}.jpg)
+  width?: number;
+  height?: number;
+};
+
+export type Settlement = {
+  id: string;
+  space_id: string;
+  event_item_id: string | null;
+  title: string;
+  payer_id: string;
+  amount: number;
+  participants: string[];
+  status: "open" | "settled";
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Database = {
@@ -221,6 +246,20 @@ export type Database = {
           position?: number;
         };
         Update: Partial<Pick<ExpenseCategory, "name" | "position">>;
+        Relationships: [];
+      };
+      settlements: {
+        Row: Settlement;
+        Insert: {
+          space_id: string;
+          event_item_id?: string | null;
+          title: string;
+          payer_id: string;
+          amount: number;
+          participants: string[];
+          created_by: string;
+        };
+        Update: Partial<Pick<Settlement, "status" | "title" | "amount">>;
         Relationships: [];
       };
     };

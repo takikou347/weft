@@ -41,3 +41,34 @@ grant execute on function auth.uid() to anon, authenticated;
 -- 実環境ではマイグレーション実行ロールによって既定権限が適用されない場合が
 -- あるため、テーブル権限はマイグレーション側で明示的に GRANT する方針
 -- (20260719100004_rls.sql)。このシムも同じ条件で検証する。
+
+-- Supabase Storage の最小スタブ(storage.buckets / objects / foldername)
+create schema if not exists storage;
+
+create table if not exists storage.buckets (
+  id text primary key,
+  name text not null,
+  public boolean not null default false
+);
+
+create table if not exists storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets (id),
+  name text not null,
+  owner uuid,
+  created_at timestamptz not null default now()
+);
+
+-- パスのフォルダ部分を配列で返す(Supabase実装と同じ挙動)
+create or replace function storage.foldername(name text)
+returns text[]
+language sql
+immutable
+as $$
+  select (string_to_array(name, '/'))[1 : array_length(string_to_array(name, '/'), 1) - 1]
+$$;
+
+alter table storage.objects enable row level security;
+grant usage on schema storage to anon, authenticated;
+grant select, insert, update, delete on storage.objects to authenticated;
+grant select on storage.buckets to authenticated;
