@@ -50,6 +50,7 @@ export async function login(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "");
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -58,7 +59,8 @@ export async function login(
     return { error: "メールアドレスまたはパスワードが違います。" };
   }
 
-  redirect("/");
+  // オープンリダイレクト防止: 自サイトのパスのみ許可
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
 }
 
 export async function logout(): Promise<void> {

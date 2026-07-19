@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/auth"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/terms", "/privacy"];
 
 // セッションのリフレッシュと未ログイン時のリダイレクトを行う
 export async function updateSession(request: NextRequest) {
@@ -42,6 +42,11 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.search = "";
+    // ログイン後に元のページへ戻す(招待リンク等)。同一オリジンのパスのみ
+    if (pathname !== "/" && pathname.startsWith("/")) {
+      url.searchParams.set("next", pathname);
+    }
     return NextResponse.redirect(url);
   }
 

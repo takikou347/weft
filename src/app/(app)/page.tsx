@@ -1,17 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
+import { TYPE_LABELS } from "@/lib/items";
 
 const PAGE_SIZE = 20;
-
-const TYPE_LABELS: Record<string, string> = {
-  event: "予定",
-  diary: "日記",
-  expense: "収支",
-  task: "つとめ",
-  document: "書きもの",
-  photo: "写真",
-};
 
 // ホーム: 自分のアイテム一覧(ページネーション付き)
 // RLS により「自分が作成者のもの」しか返らない。クライアント側での絞り込みはしない
@@ -59,19 +51,26 @@ export default async function HomePage({
       ) : (
         <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
           {(items ?? []).map((item) => (
-            <li key={item.id} className="px-5 py-4">
-              <div className="flex items-baseline gap-3 text-sm text-usuzumi">
-                <time dateTime={item.occurred_on}>
-                  {formatDateJa(item.occurred_on)}
-                </time>
-                <span className="border border-keisen px-1.5 text-xs">
-                  {TYPE_LABELS[item.type] ?? item.type}
-                </span>
-              </div>
-              {item.title && <p className="mt-1 font-medium">{item.title}</p>}
-              {item.body && (
-                <p className="mt-1 whitespace-pre-wrap text-sm">{item.body}</p>
-              )}
+            <li key={item.id}>
+              <Link
+                href={`/items/${item.id}`}
+                className="block px-5 py-4 hover:bg-washi"
+              >
+                <div className="flex items-baseline gap-3 text-sm text-usuzumi">
+                  <time dateTime={item.occurred_on}>
+                    {formatDateJa(item.occurred_on)}
+                  </time>
+                  <span className="border border-keisen px-1.5 text-xs">
+                    {TYPE_LABELS[item.type] ?? item.type}
+                  </span>
+                </div>
+                {item.title && <p className="mt-1 font-medium">{item.title}</p>}
+                {item.body && (
+                  <p className="mt-1 line-clamp-3 whitespace-pre-wrap text-sm">
+                    {item.body}
+                  </p>
+                )}
+              </Link>
             </li>
           ))}
         </ul>

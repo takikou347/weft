@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useActionState } from "react";
 import { login, type AuthFormState } from "../actions";
 
 const initialState: AuthFormState = { error: null };
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "";
   const [state, formAction, pending] = useActionState(login, initialState);
 
   return (
@@ -23,6 +34,7 @@ export default function LoginPage() {
           action={formAction}
           className="mt-10 border border-keisen bg-paper px-6 py-8"
         >
+          {next && <input type="hidden" name="next" value={next} />}
           <label className="block text-sm" htmlFor="email">
             メールアドレス
           </label>

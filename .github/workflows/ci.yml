@@ -46,6 +46,8 @@ jobs:
           eval "$(supabase status -o env)"
           echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          # 退会(F-01-5)のE2Eで使用。サーバープロセスのみが参照する
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
 
       - name: Playwright ブラウザを準備
         run: npx playwright install --with-deps chromium

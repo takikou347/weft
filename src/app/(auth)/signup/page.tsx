@@ -66,10 +66,25 @@ export default function SignupPage() {
             </p>
           )}
 
+          <p className="mt-6 text-xs text-usuzumi">
+            帳面をつくると、
+            <Link href="/terms" className="text-ai underline underline-offset-4">
+              利用規約
+            </Link>
+            と
+            <Link
+              href="/privacy"
+              className="text-ai underline underline-offset-4"
+            >
+              プライバシーポリシー
+            </Link>
+            に同意したことになります。
+          </p>
+
           <button
             type="submit"
             disabled={pending}
-            className="mt-8 w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
+            className="mt-4 w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
           >
             {pending ? "つくっています…" : "帳面をつくる"}
           </button>
