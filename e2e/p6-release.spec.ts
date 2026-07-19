@@ -99,6 +99,8 @@ test("共有とコメントで便り(アプリ内通知)が届く", async ({ bro
   await bPage.getByText(diaryTitle).first().click();
   await bPage.getByLabel("ひとこと添える").fill("よい一日ですね");
   await bPage.getByRole("button", { name: "書き込む" }).click();
+  // コメント登録の完了(画面反映)を待ってから A 側を確認する
+  await expect(bPage.getByText("よい一日ですね").first()).toBeVisible();
 
   await aPage.goto("/notifications");
   await expect(
