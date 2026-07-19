@@ -136,6 +136,28 @@ export type Budget = {
   created_at: string;
 };
 
+export type NotificationType =
+  | "shared"
+  | "comment"
+  | "reaction"
+  | "task_assigned"
+  | "settlement";
+
+export type AppNotification = {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  payload: {
+    item_id?: string;
+    space_id?: string;
+    actor_id?: string;
+    settlement_id?: string;
+    emoji?: string;
+  };
+  read_at: string | null;
+  created_at: string;
+};
+
 export type DiaryPayload = {
   tags?: string[];
   // F-04-4 / F-10-2 装飾(基本セット)
@@ -265,6 +287,12 @@ export type Database = {
           position?: number;
         };
         Update: Partial<Pick<ExpenseCategory, "name" | "position">>;
+        Relationships: [];
+      };
+      notifications: {
+        Row: AppNotification;
+        Insert: never;
+        Update: { read_at: string | null };
         Relationships: [];
       };
       projects_meta: {

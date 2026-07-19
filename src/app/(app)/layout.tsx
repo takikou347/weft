@@ -17,11 +17,17 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { count: unreadCount }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .is("read_at", null),
+  ]);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -31,9 +37,21 @@ export default async function AppLayout({
             Weft
           </Link>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-usuzumi">
+            <Link
+              href="/notifications"
+              className="relative text-usuzumi hover:text-sumi"
+            >
+              便り
+              {(unreadCount ?? 0) > 0 && (
+                <span
+                  aria-label={`未読${unreadCount}件`}
+                  className="absolute -right-2 -top-1 inline-block h-2 w-2 rounded-full bg-ai"
+                />
+              )}
+            </Link>
+            <Link href="/account" className="text-usuzumi hover:text-sumi">
               {profile?.display_name ?? ""} さん
-            </span>
+            </Link>
             <form action={logout}>
               <button
                 type="submit"

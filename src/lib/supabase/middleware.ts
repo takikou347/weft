@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/auth"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/terms", "/privacy"];
 
 // セッションのリフレッシュと未ログイン時のリダイレクトを行う
 export async function updateSession(request: NextRequest) {

@@ -586,6 +586,30 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- P6: 通知の分離(自分宛て以外は見えない・共有/コメントで積まれる)
+-- ---------------------------------------------------------------------------
+
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+declare
+  my_count int;
+begin
+  -- ここまでのA/Cの共有・コメント・精算でBに通知が積まれているはず
+  select count(*) into my_count from public.notifications;
+  if my_count = 0 then
+    raise exception '通知: 共有・コメントで通知が積まれていない';
+  end if;
+  -- すべて自分宛てであること
+  if exists (
+    select 1 from public.notifications
+    where user_id <> '00000000-0000-4000-8000-00000000000b'
+  ) then
+    raise exception 'RLS違反: 他人宛ての通知が見えている';
+  end if;
+end;
+$$;
+
 -- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;
