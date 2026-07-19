@@ -34,7 +34,7 @@ export async function createDiaryItem(
     redirect("/login");
   }
 
-  const { data: personalSpace } = await supabase
+  const { data: personalSpace, error: spaceError } = await supabase
     .from("spaces")
     .select("id")
     .eq("type", "personal")
@@ -42,6 +42,7 @@ export async function createDiaryItem(
     .single();
 
   if (!personalSpace) {
+    console.error("personal space not found:", spaceError?.message);
     return { error: "帳面が見つかりませんでした。開き直してください。" };
   }
 
@@ -55,6 +56,7 @@ export async function createDiaryItem(
   });
 
   if (error) {
+    console.error("item insert failed:", error.code, error.message);
     return { error: "記せませんでした。時間をおいてお試しください。" };
   }
 

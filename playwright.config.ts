@@ -22,9 +22,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
+    // CIでは本番ビルドで検証する(devサーバー固有の挙動を排除し、実運用に近づける)
+    command: process.env.CI ? "npm run build && npm run start" : "npm run dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 });

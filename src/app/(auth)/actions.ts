@@ -36,6 +36,7 @@ export async function signup(
     if (error.code === "user_already_exists") {
       return { error: "このメールアドレスはすでに登録されています。" };
     }
+    console.error("signup failed:", error.code, error.message);
     return { error: "登録できませんでした。時間をおいてお試しください。" };
   }
 
