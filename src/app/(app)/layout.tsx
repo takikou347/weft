@@ -57,6 +57,9 @@ export default async function AppLayout({
           <Link href="/expenses" className="text-usuzumi hover:text-sumi">
             家計
           </Link>
+          <Link href="/spaces" className="text-usuzumi hover:text-sumi">
+            つながり
+          </Link>
         </nav>
       </header>
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">

@@ -12,6 +12,8 @@ import {
   taskPayload,
 } from "@/lib/items";
 import { createLink, deleteItem, deleteLink } from "../actions";
+import { shareItem, unshareItem } from "../../spaces/actions";
+import { spaceColor } from "@/lib/spaces";
 import type { Item } from "@/types/database";
 
 // アイテム詳細(F-09-4: リンク一覧、F-03-4: 派生導線)
@@ -39,6 +41,21 @@ export default async function ItemDetailPage({
   // 閲覧権限が無い場合も RLS で0件になる → 404(存在自体を隠す)
   if (!item) notFound();
   const isOwner = user?.id === item.owner_id;
+
+  // 共有状態(F-06-4: どこへ差し出しているかを常に見せる)
+  const { data: shares } = await supabase
+    .from("item_shares")
+    .select("space_id")
+    .eq("item_id", id);
+  const sharedSpaceIds = new Set((shares ?? []).map((s) => s.space_id));
+  const { data: myGroups } = isOwner
+    ? await supabase
+        .from("spaces")
+        .select("id, name, settings")
+        .neq("type", "personal")
+        .order("created_at")
+    : { data: [] };
+  const sharedSpaces = (myGroups ?? []).filter((s) => sharedSpaceIds.has(s.id));
 
   // リンク済みアイテム(F-09-2: 双方向。RLSにより見えない端点のリンクは返らない)
   const { data: links } = await supabase
@@ -79,6 +96,27 @@ export default async function ItemDetailPage({
       </div>
 
       <h2 className="mt-2 font-serif text-2xl">{item.title ?? "(無題)"}</h2>
+
+      {sharedSpaces.length > 0 ? (
+        <p className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-usuzumi">差し出し先:</span>
+          {sharedSpaces.map((s) => (
+            <span
+              key={s.id}
+              className="border px-1.5 py-0.5"
+              style={{ borderColor: spaceColor(s), color: spaceColor(s) }}
+            >
+              {s.name}
+            </span>
+          ))}
+        </p>
+      ) : (
+        isOwner && (
+          <p className="mt-2 text-xs text-usuzumi">
+            この記録は、あなたにしか見えません。
+          </p>
+        )
+      )}
 
       <div className="mt-4 border border-keisen bg-paper px-6 py-6">
         {item.type === "expense" && (
@@ -121,6 +159,49 @@ export default async function ItemDetailPage({
             </button>
           </form>
         </div>
+      )}
+
+      {isOwner && (myGroups ?? []).length > 0 && (
+        <section className="mt-8">
+          <h3 className="border-l-4 border-ai pl-2 font-medium">差し出す</h3>
+          <p className="mt-1 text-xs text-usuzumi">
+            差し出した先のなかま全員に見えます。取り下げれば見えなくなり、記録はあなたの帳面に残ります。
+          </p>
+          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+            {(myGroups ?? []).map((s) => {
+              const shared = sharedSpaceIds.has(s.id);
+              return (
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between px-4 py-3"
+                >
+                  <span className="flex items-center gap-2 text-sm">
+                    <span
+                      aria-hidden
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: spaceColor(s) }}
+                    />
+                    {s.name}
+                  </span>
+                  <form action={shared ? unshareItem : shareItem}>
+                    <input type="hidden" name="item_id" value={item.id} />
+                    <input type="hidden" name="space_id" value={s.id} />
+                    <button
+                      type="submit"
+                      className={
+                        shared
+                          ? "text-xs text-usuzumi underline underline-offset-4"
+                          : "border border-ai px-3 py-1 text-xs text-ai hover:bg-ai hover:text-paper"
+                      }
+                    >
+                      {shared ? "取り下げる" : "差し出す"}
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       {item.type === "event" && isOwner && (

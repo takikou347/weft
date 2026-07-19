@@ -1,0 +1,63 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { SPACE_TYPE_LABELS, spaceColor } from "@/lib/spaces";
+
+// スペース内の共通枠(テーマカラーの見出し帯+タブ)
+export default async function SpaceLayout({
+  params,
+  children,
+}: {
+  params: Promise<{ id: string }>;
+  children: React.ReactNode;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: space } = await supabase
+    .from("spaces")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  // 非メンバーにはRLSで見えない → 404
+  if (!space) notFound();
+  const color = spaceColor(space);
+
+  const tabs = [
+    { href: `/spaces/${id}`, label: "回覧板" },
+    { href: `/spaces/${id}/calendar`, label: "こよみ" },
+    { href: `/spaces/${id}/members`, label: "なかま" },
+    { href: `/spaces/${id}/settings`, label: "設定" },
+  ];
+
+  return (
+    <div>
+      <div
+        className="border border-keisen bg-paper px-5 py-4"
+        style={{ borderTopColor: color, borderTopWidth: 4 }}
+      >
+        <p className="text-xs text-usuzumi">
+          {SPACE_TYPE_LABELS[space.type]}
+        </p>
+        <h2 className="font-serif text-2xl">{space.name}</h2>
+      </div>
+
+      <nav
+        aria-label="スペース内のページ"
+        className="mt-3 flex gap-4 border-b border-keisen pb-2 text-sm"
+      >
+        {tabs.map((t) => (
+          <Link
+            key={t.href}
+            href={t.href}
+            className="text-usuzumi hover:text-sumi"
+          >
+            {t.label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}

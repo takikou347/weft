@@ -64,6 +64,32 @@ export type Link = {
   created_at: string;
 };
 
+export type Invitation = {
+  id: string;
+  space_id: string;
+  token: string;
+  expires_at: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type Comment = {
+  id: string;
+  item_id: string;
+  space_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+};
+
+export type Reaction = {
+  item_id: string;
+  space_id: string;
+  user_id: string;
+  emoji: string;
+  created_at: string;
+};
+
 export type ExpenseCategory = {
   id: string;
   user_id: string;
@@ -107,12 +133,44 @@ export type Database = {
       spaces: {
         Row: Space;
         Insert: never;
-        Update: never;
+        Update: Partial<Pick<Space, "name" | "settings">>;
         Relationships: [];
       };
       space_members: {
         Row: SpaceMember;
         Insert: never;
+        Update: Partial<Pick<SpaceMember, "role">>;
+        Relationships: [];
+      };
+      invitations: {
+        Row: Invitation;
+        Insert: {
+          space_id: string;
+          created_by: string;
+          expires_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      comments: {
+        Row: Comment;
+        Insert: {
+          item_id: string;
+          space_id: string;
+          author_id: string;
+          body: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      reactions: {
+        Row: Reaction;
+        Insert: {
+          item_id: string;
+          space_id: string;
+          user_id: string;
+          emoji: string;
+        };
         Update: never;
         Relationships: [];
       };
@@ -175,6 +233,22 @@ export type Database = {
           kind: string;
           total: number;
           entry_count: number;
+        }[];
+      };
+      create_group: {
+        Args: { group_name: string };
+        Returns: string;
+      };
+      accept_invitation: {
+        Args: { invite_token: string };
+        Returns: string;
+      };
+      invitation_preview: {
+        Args: { invite_token: string };
+        Returns: {
+          space_name: string;
+          space_type: SpaceType;
+          expired: boolean;
         }[];
       };
     };

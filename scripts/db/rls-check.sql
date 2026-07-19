@@ -229,6 +229,155 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- P3: グループ作成RPC・コメント・リアクションの分離
+-- ---------------------------------------------------------------------------
+
+reset role;
+set local role authenticated;
+
+-- 第三者 C を用意(検証グループの非メンバー)
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-4000-8000-00000000000c', 'carol@example.com');
+set local role authenticated;
+
+-- A がアイテムを検証グループへ再共有し、コメント・リアクションを付ける
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+insert into public.item_shares (item_id, space_id, shared_by)
+values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000a');
+insert into public.comments (item_id, space_id, author_id, body)
+values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', 'よい旅でした');
+insert into public.reactions (item_id, space_id, user_id, emoji)
+values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '🌸');
+
+-- メンバー B にはコメント・リアクションが見え、自分でも書ける(オープン型)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+begin
+  if (select count(*) from public.comments) <> 1 then
+    raise exception 'コメント: メンバー B に見えない(オープン型に反する)';
+  end if;
+  if (select count(*) from public.reactions) <> 1 then
+    raise exception 'リアクション: メンバー B に見えない';
+  end if;
+end;
+$$;
+insert into public.comments (item_id, space_id, author_id, body)
+values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000b', 'また行きましょう');
+
+-- 非メンバー C には一切見えず、書き込めない
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+do $$
+declare
+  ok boolean := false;
+begin
+  if (select count(*) from public.comments) <> 0 then
+    raise exception 'RLS違反: 非メンバー C にコメントが見えている';
+  end if;
+  if (select count(*) from public.reactions) <> 0 then
+    raise exception 'RLS違反: 非メンバー C にリアクションが見えている';
+  end if;
+  begin
+    insert into public.comments (item_id, space_id, author_id, body)
+    values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000c', '割り込み');
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: 非メンバー C がコメントを書き込めている';
+  end if;
+end;
+$$;
+
+-- 共有されていないアイテムへはメンバーでもコメントできない
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+do $$
+declare
+  ok boolean := false;
+begin
+  begin
+    insert into public.comments (item_id, space_id, author_id, body)
+    values ('10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000b', '未共有への割り込み');
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: 未共有アイテムへコメントできている';
+  end if;
+end;
+$$;
+
+-- C がグループ作成RPCで自分のグループを作れる(他人のグループには影響しない)
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+do $$
+declare
+  gid uuid;
+begin
+  gid := public.create_group('Cのグループ');
+  if public.space_role_of(gid) <> 'owner' then
+    raise exception 'create_group: 作成者が owner になっていない';
+  end if;
+  if (select count(*) from public.spaces) <> 2 then
+    raise exception 'C に見えるスペース数が想定外(自分の個人+自分のグループ=2のはず)';
+  end if;
+end;
+$$;
+
+-- 招待: メンバーでない C は検証グループの招待を作れない
+do $$
+declare
+  ok boolean := false;
+begin
+  begin
+    insert into public.invitations (space_id, created_by)
+    values ('20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000c');
+  exception when others then
+    ok := true;
+  end;
+  if not ok then
+    raise exception 'RLS違反: 非メンバーが招待リンクを発行できている';
+  end if;
+end;
+$$;
+
+-- 招待の受諾で C が検証グループに参加でき、共有アイテムが見えるようになる
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+insert into public.invitations (id, space_id, created_by)
+values ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-00000000000a');
+
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+do $$
+declare
+  tok text;
+  joined uuid;
+begin
+  -- トークンは非メンバーには読めないため、definer 関数経由でしか受諾できない
+  begin
+    select token into strict tok from public.invitations where id = '30000000-0000-4000-8000-000000000001';
+    raise exception 'RLS違反: 非メンバーが招待トークンを直接読めている';
+  exception when no_data_found then
+    null;
+  end;
+end;
+$$;
+
+reset role;
+select token as invite_token from public.invitations where id = '30000000-0000-4000-8000-000000000001' \gset
+set local role authenticated;
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select public.accept_invitation(:'invite_token');
+do $$
+begin
+  if public.space_role_of('20000000-0000-4000-8000-000000000001') is distinct from 'member' then
+    raise exception '招待受諾: C が member になっていない';
+  end if;
+  if not exists (select 1 from public.items where id = '10000000-0000-4000-8000-000000000001') then
+    raise exception '招待受諾後: 共有アイテムが C に見えない';
+  end if;
+end;
+$$;
+
 -- 匿名(anon)はテーブル権限ごと拒否されること(GRANTを一切与えていない)
 reset role;
 set local role anon;

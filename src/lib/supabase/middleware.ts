@@ -42,6 +42,11 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.search = "";
+    // ログイン後に元のページへ戻す(招待リンク等)。同一オリジンのパスのみ
+    if (pathname !== "/" && pathname.startsWith("/")) {
+      url.searchParams.set("next", pathname);
+    }
     return NextResponse.redirect(url);
   }
 
