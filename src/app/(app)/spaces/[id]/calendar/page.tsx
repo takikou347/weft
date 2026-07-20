@@ -9,7 +9,7 @@ import {
   todayIso,
 } from "@/lib/date";
 import { itemLine } from "@/lib/items";
-import { TypeBadge } from "@/components/type-badge";
+import { TAG_COLORS, TypeBadge } from "@/components/type-badge";
 import type { Item } from "@/types/database";
 
 const WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"];
@@ -64,7 +64,8 @@ export default async function SpaceCalendarPage({
         </Link>
       </div>
 
-      <table className="mt-3 w-full border-collapse rounded-md border border-keisen bg-paper text-center">
+      {/* table-fixed で7列を均等幅に固定する(モバイルで横スクロールさせない) */}
+      <table className="mt-3 w-full table-fixed border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
             {WEEKDAYS.map((w) => (
@@ -83,24 +84,48 @@ export default async function SpaceCalendarPage({
             <tr key={wi}>
               {week.map((date, di) =>
                 date ? (
-                  <td key={di} className="border border-keisen p-1 align-top">
-                    <span
-                      className={`text-sm ${
-                        date === today
-                          ? "inline-block rounded-full bg-ai px-1.5 text-paper"
-                          : ""
-                      }`}
-                    >
-                      {Number(date.slice(8))}
-                    </span>
-                    <span className="mt-0.5 flex flex-wrap justify-center gap-0.5">
-                      {(byDate.get(date) ?? []).slice(0, 4).map((item) => (
-                        <span
-                          key={item.id}
-                          title={itemLine(item)}
-                          className="inline-block h-1.5 w-1.5 rounded-full bg-ai"
-                        />
-                      ))}
+                  <td key={di} className="border border-keisen p-0 align-top">
+                    <span className="block min-h-14 px-0.5 pb-1 pt-0.5 sm:min-h-20">
+                      <span
+                        className={`text-xs ${
+                          date === today
+                            ? "inline-block rounded-full bg-ai px-1.5 text-paper"
+                            : "text-usuzumi"
+                        }`}
+                      >
+                        {Number(date.slice(8))}
+                      </span>
+                      <span className="mt-0.5 block space-y-0.5 text-left">
+                        {(byDate.get(date) ?? []).slice(0, 3).map((item) => (
+                          <span
+                            key={item.id}
+                            title={itemLine(item)}
+                            className="block"
+                          >
+                            <span
+                              className="hidden truncate rounded-sm px-1 text-[10px] leading-4 sm:block"
+                              style={{
+                                backgroundColor: TAG_COLORS[item.type].bg,
+                                color: TAG_COLORS[item.type].fg,
+                              }}
+                            >
+                              {itemLine(item)}
+                            </span>
+                            <span
+                              className="mx-0.5 block h-1.5 rounded-sm sm:hidden"
+                              style={{
+                                backgroundColor: TAG_COLORS[item.type].fg,
+                              }}
+                            />
+                          </span>
+                        ))}
+                        {(byDate.get(date) ?? []).length > 3 && (
+                          <span className="block px-1 text-center text-[10px] leading-4 text-usuzumi sm:text-left">
+                            +{(byDate.get(date) ?? []).length - 3}
+                            <span className="hidden sm:inline">件</span>
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </td>
                 ) : (
