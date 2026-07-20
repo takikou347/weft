@@ -1,0 +1,35 @@
+name: 機能要望
+description: 追加してほしい機能・改善を提案する
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        要件定義書(docs/requirements/requirements.md)にない仕様は、まずこの Issue で合意してから実装します。
+        完了条件まで書いてもらえると、そのまま実装依頼(@claude メンション)に使えます。
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景 / 困りごと
+      description: なぜこの機能が欲しいのか
+      placeholder: 月をまたいだ収支の推移が見たいが、月ごとの画面を行き来する必要がある
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: やりたいこと
+      description: どんな動きになってほしいか。画面や操作のイメージがあれば具体的に
+      placeholder: 家計画面に過去6ヶ月の収支推移を表示する
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: どうなったら「できた」と言えるか(受け入れ条件)
+      placeholder: |
+        - 家計画面で過去6ヶ月の収入・支出の合計が月別に見える
+        - モバイル(375px)で崩れない
+    validations:
+      required: true
