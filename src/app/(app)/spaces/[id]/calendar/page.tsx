@@ -52,14 +52,14 @@ export default async function SpaceCalendarPage({
           href={`/spaces/${id}/calendar?month=${addMonths(month, -1)}`}
           className="text-ai underline underline-offset-4"
         >
-          まえの月
+          前の月
         </Link>
         <span className="font-serif text-lg">{formatMonthJa(month)}</span>
         <Link
           href={`/spaces/${id}/calendar?month=${addMonths(month, 1)}`}
           className="text-ai underline underline-offset-4"
         >
-          つぎの月
+          次の月
         </Link>
       </div>
 

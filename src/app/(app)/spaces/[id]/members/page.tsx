@@ -142,7 +142,7 @@ export default async function MembersPage({
       {orgCandidates.length > 0 && (
         <section className="mt-8">
           <h4 className="border-l-4 border-ai pl-2 font-medium">
-            組織のメンバーを加える
+            組織のメンバーを追加する
           </h4>
           <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {orgCandidates.map((c) => (
@@ -158,7 +158,7 @@ export default async function MembersPage({
                     type="submit"
                     className="border border-ai px-3 py-1 text-xs text-ai hover:bg-ai hover:text-paper"
                   >
-                    加える
+                    追加する
                   </button>
                 </form>
               </li>
