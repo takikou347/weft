@@ -178,7 +178,7 @@ export default async function BudgetPage({
             <div className="flex flex-wrap items-end gap-6">
               <div>
                 <label className="block text-sm" htmlFor="meta-status">
-                  すすみ具合
+                  ステータス
                 </label>
                 <select
                   id="meta-status"
@@ -195,7 +195,7 @@ export default async function BudgetPage({
               </div>
               <div>
                 <label className="block text-sm" htmlFor="meta-start">
-                  はじまり
+                  開始
                 </label>
                 <input
                   id="meta-start"
@@ -207,7 +207,7 @@ export default async function BudgetPage({
               </div>
               <div>
                 <label className="block text-sm" htmlFor="meta-end">
-                  おわり
+                  終了
                 </label>
                 <input
                   id="meta-end"

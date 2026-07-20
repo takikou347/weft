@@ -100,7 +100,7 @@ export default async function DocsPage({
         </h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            保存できませんでした。題と本文の両方を入れてください。
+            保存できませんでした。タイトルと本文の両方を入力してください。
           </p>
         )}
         <form
@@ -109,7 +109,7 @@ export default async function DocsPage({
         >
           <input type="hidden" name="space_id" value={id} />
           <label className="block text-sm" htmlFor="doc-title">
-            題
+            タイトル
           </label>
           <input
             id="doc-title"

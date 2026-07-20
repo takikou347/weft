@@ -171,7 +171,7 @@ export default async function ItemDetailPage({
         {item.type === "event" && <EventDetail item={item as Item} />}
         {item.type === "task" && (
           <p className="text-sm">
-            すすみ具合:{" "}
+            ステータス:{" "}
             <span className="border border-keisen px-2 py-0.5">
               {TASK_STATUS_LABELS[taskPayload(item as Item).status]}
             </span>

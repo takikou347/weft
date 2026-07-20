@@ -70,7 +70,7 @@ test("Aがグループを作り、招待を発行し、日記を共有する", a
   // 日記2件(共有する1件・しない1件)
   for (const title of [diaryTitle, secretTitle]) {
     await page.goto("/items/new?type=diary");
-    await page.getByLabel("題(なくてもかまいません)").fill(title);
+    await page.getByLabel("タイトル(任意)").fill(title);
     await page.getByRole("button", { name: "保存する" }).click();
     await page.waitForURL(/\/days\//);
   }

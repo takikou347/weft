@@ -82,7 +82,7 @@ export async function createItem(
   const linkTo = String(formData.get("link_to") ?? "").trim();
 
   if (type !== "expense" && !title && !body) {
-    return { error: "題か本文のどちらかを記してください。" };
+    return { error: "タイトルか本文のどちらかを入力してください。" };
   }
 
   const payload = buildPayload(type, formData);
@@ -161,7 +161,7 @@ export async function updateItem(
   const body = String(formData.get("body") ?? "").trim();
 
   if (type !== "expense" && !title && !body) {
-    return { error: "題か本文のどちらかを記してください。" };
+    return { error: "タイトルか本文のどちらかを入力してください。" };
   }
 
   const payload = buildPayload(type, formData);

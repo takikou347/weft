@@ -24,12 +24,29 @@
 - テスト: Vitest(ユニット)+ Playwright(E2E)。**RLSに関わる変更は、分離テスト(他人の非共有データが見えないこと)の追加と通過を必須とする**
 - `service_role` キーは絶対にクライアントに露出しない。秘密情報は`.env.local`のみ(コミット禁止、`.env.example`を整備)
 
+## コマンド
+
+- `npm run dev` — 開発サーバー(ローカルSupabaseは `npx supabase start`。要Docker)
+- `npm run typecheck` / `npm run lint` / `npm run test` — 検証3点セット。**完了報告の前に必ず実行し、結果を添える**
+- `npm run test:e2e` — Playwright E2E(RLS分離テスト含む。ローカルSupabase起動が前提)
+
+## ディレクトリ
+
+- `src/app/` — 画面(App Router)。`(auth)` 認証前 / `(app)` ログイン後
+- `src/components/ui/` — shadcn/uiコンポーネント(テーマ適用済み。追加は `npx shadcn add`)
+- `src/lib/` — 共有ロジック(日付・集計・精算・Supabaseクライアント)。ユニットテストの主対象
+- `supabase/migrations/` — スキーマ・RLSポリシー(変更の唯一の手段)
+- `e2e/` — Playwright E2E。**UI文言をセレクタに使うため、文言変更は必ずテストと同時に行う**
+- `docs/` — 要件定義・詳細設計・開発ルール(入口は `docs/README.md`)
+- `.claude/rules/` — 分野別の実装規約(`rls.md` / `ui.md` / `testing.md`)。**該当分野を触るときは必ず読む**
+
 ## 開発プロセス
 
 ブランチ運用・レビュー体制・コミット規約の詳細は **`docs/development/workflow.md`(開発ルール)** に従う。要点:
 
 - `docs/requirements/requirements.md` §10のフェーズ(P1〜P6)を順守。フェーズを飛ばさない
 - **GitHub Flowベース**: mainは常にデプロイ可能に保ち、変更はトピックブランチ → PR → mergeで入れる(mainへの直pushはしない)。ブランチ命名は `<type>/<説明>`(Claude Codeセッションは `claude/**` のままでよい)
+- mainへの直push・force pushは `.claude/settings.json` のフック(`.claude/hooks/guard-git.sh`)が決定論的に遮断する。GitHub側の保護ルール(Ruleset)は `scripts/setup-repo.sh` で設定する
 - コミットはConventional Commits形式。1コミット=1論理変更。要件定義書の対応項番(F-◯◯等)を書く
 - mergeの条件: CI green(型チェック・lint・テスト・RLS分離テスト)。**運用開始(一般公開)までは条件を満たせば自分でマージしてよい**。一般公開後は人間の承認必須に切り替える。自動レビューは当面使わない(有効化後は `[must]` 指摘ゼロも条件に加える)
 - **RLSポリシーを変更したときは、コミットメッセージとPR本文で必ず明示する**
