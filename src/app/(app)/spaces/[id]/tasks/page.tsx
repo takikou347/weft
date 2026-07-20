@@ -71,7 +71,7 @@ export default async function TasksPage({
             {list.length === 0 ? (
               <p className="mt-2 text-xs text-usuzumi">ありません。</p>
             ) : (
-              <ul className="mt-2 divide-y divide-keisen border border-keisen bg-paper">
+              <ul className="mt-2 divide-y divide-keisen rounded-md border border-keisen bg-paper">
                 {list.map((task) => {
                   const p = taskPayload(task);
                   const canMove =
@@ -144,7 +144,7 @@ export default async function TasksPage({
         )}
         <form
           action={createProjectTask}
-          className="mt-3 border border-keisen bg-paper px-5 py-6"
+          className="mt-3 rounded-md border border-keisen bg-paper px-5 py-6"
         >
           <input type="hidden" name="space_id" value={id} />
           <label className="block text-sm" htmlFor="task-title">
@@ -156,7 +156,7 @@ export default async function TasksPage({
             type="text"
             required
             maxLength={100}
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+            className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <div className="mt-4 flex flex-wrap items-end gap-6">
             <div>
@@ -168,7 +168,7 @@ export default async function TasksPage({
                 name="due"
                 type="date"
                 defaultValue={todayIso()}
-                className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
               />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default async function TasksPage({
                 id="task-assignee"
                 name="assignee"
                 defaultValue=""
-                className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
               >
                 <option value="">未定</option>
                 {(members ?? []).map((m) => (
@@ -191,7 +191,7 @@ export default async function TasksPage({
             </div>
             <button
               type="submit"
-              className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+              className="rounded-md bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
               追加する
             </button>

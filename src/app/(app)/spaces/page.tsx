@@ -18,7 +18,7 @@ export default async function SpacesPage() {
         <h2 className="font-serif text-2xl">スペース</h2>
         <Link
           href="/spaces/new"
-          className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+          className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
           スペースを作る
         </Link>
@@ -32,7 +32,7 @@ export default async function SpacesPage() {
           </p>
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="mt-6 divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {(spaces ?? []).map((space) => (
             <li key={space.id}>
               <Link
@@ -45,7 +45,7 @@ export default async function SpacesPage() {
                   style={{ backgroundColor: spaceColor(space) }}
                 />
                 <span className="flex-1 font-medium">{space.name}</span>
-                <span className="border border-keisen px-1.5 text-xs text-usuzumi">
+                <span className="rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                   {SPACE_TYPE_LABELS[space.type]}
                 </span>
               </Link>

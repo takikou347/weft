@@ -34,7 +34,7 @@ export default async function ExpensesPage({
         <h2 className="font-serif text-2xl">{formatMonthJa(month)} の家計</h2>
         <Link
           href={`/items/new?type=expense`}
-          className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+          className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
           つける
         </Link>
@@ -61,7 +61,7 @@ export default async function ExpensesPage({
         </Link>
       </div>
 
-      <dl className="mt-4 grid grid-cols-3 divide-x divide-keisen border border-keisen bg-paper text-center">
+      <dl className="mt-4 grid grid-cols-3 divide-x divide-keisen rounded-md border border-keisen bg-paper text-center">
         <div className="px-2 py-4">
           <dt className="text-xs text-usuzumi">はいり</dt>
           <dd className="mt-1 text-sm font-medium">{formatYen(incomeTotal)}</dd>
@@ -101,7 +101,7 @@ export default async function ExpensesPage({
                   </span>
                 </div>
                 <div
-                  className="mt-1 h-2 border border-keisen bg-paper"
+                  className="mt-1 h-2 rounded-md border border-keisen bg-paper"
                   role="img"
                   aria-label={`${r.category} ${formatYen(Number(r.total))}`}
                 >
@@ -132,7 +132,7 @@ export default async function ExpensesPage({
           {(categories ?? []).map((c) => (
             <li
               key={c.id}
-              className="flex items-center gap-2 border border-keisen bg-paper px-3 py-1 text-sm"
+              className="flex items-center gap-2 rounded-md border border-keisen bg-paper px-3 py-1 text-sm"
             >
               {c.name}
               <form action={removeCategory}>
@@ -155,11 +155,11 @@ export default async function ExpensesPage({
             maxLength={20}
             placeholder="新しい費目"
             required
-            className="flex-1 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+            className="flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <button
             type="submit"
-            className="border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
+            className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
           >
             加える
           </button>

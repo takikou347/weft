@@ -36,7 +36,7 @@ export default async function NewItemPage({
             className={
               t === type
                 ? "border border-ai bg-ai px-3 py-1 text-paper"
-                : "border border-keisen bg-paper px-3 py-1 text-usuzumi hover:border-ai"
+                : "rounded-md border border-keisen bg-paper px-3 py-1 text-usuzumi hover:border-ai"
             }
           >
             {TYPE_LABELS[t]}

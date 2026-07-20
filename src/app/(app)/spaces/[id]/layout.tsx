@@ -50,7 +50,7 @@ export default async function SpaceLayout({
   return (
     <div>
       <div
-        className="border border-keisen bg-paper px-5 py-4"
+        className="rounded-md border border-keisen bg-paper px-5 py-4"
         style={{ borderTopColor: color, borderTopWidth: 4 }}
       >
         <p className="text-xs text-usuzumi">

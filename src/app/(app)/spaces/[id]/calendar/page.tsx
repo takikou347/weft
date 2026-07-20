@@ -63,7 +63,7 @@ export default async function SpaceCalendarPage({
         </Link>
       </div>
 
-      <table className="mt-3 w-full border-collapse border border-keisen bg-paper text-center">
+      <table className="mt-3 w-full border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
             {WEEKDAYS.map((w) => (
@@ -103,7 +103,7 @@ export default async function SpaceCalendarPage({
                     </span>
                   </td>
                 ) : (
-                  <td key={di} className="border border-keisen bg-washi" />
+                  <td key={di} className="rounded-md border border-keisen bg-washi" />
                 ),
               )}
             </tr>
@@ -118,7 +118,7 @@ export default async function SpaceCalendarPage({
             この月に共有された記録はありません。
           </p>
         ) : (
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {items.map((item) => (
               <li key={item.id}>
                 <Link
@@ -128,7 +128,7 @@ export default async function SpaceCalendarPage({
                   <span className="text-xs text-usuzumi">
                     {item.occurred_on.slice(5).replace("-", "/")}
                   </span>
-                  <span className="mx-2 border border-keisen px-1 text-xs text-usuzumi">
+                  <span className="mx-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
                     {TYPE_LABELS[item.type]}
                   </span>
                   <span className="text-sm">{itemLine(item)}</span>

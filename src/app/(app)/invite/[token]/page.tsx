@@ -25,7 +25,7 @@ export default async function InvitePage({
       <h2 className="font-serif text-2xl">招待</h2>
 
       {!preview ? (
-        <div className="mt-8 border border-keisen bg-paper px-6 py-8">
+        <div className="mt-8 rounded-md border border-keisen bg-paper px-6 py-8">
           <p className="text-sm text-usuzumi">
             この招待は見つかりませんでした。
             <br />
@@ -33,7 +33,7 @@ export default async function InvitePage({
           </p>
         </div>
       ) : preview.expired ? (
-        <div className="mt-8 border border-keisen bg-paper px-6 py-8">
+        <div className="mt-8 rounded-md border border-keisen bg-paper px-6 py-8">
           <p className="text-sm text-usuzumi">
             「{preview.space_name}」への招待は、期限が過ぎています。
             <br />
@@ -41,7 +41,7 @@ export default async function InvitePage({
           </p>
         </div>
       ) : (
-        <div className="mt-8 border border-keisen bg-paper px-6 py-8">
+        <div className="mt-8 rounded-md border border-keisen bg-paper px-6 py-8">
           <p className="text-sm text-usuzumi">
             {SPACE_TYPE_LABELS[preview.space_type]}
           </p>
@@ -60,7 +60,7 @@ export default async function InvitePage({
             <input type="hidden" name="token" value={token} />
             <button
               type="submit"
-              className="w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep"
+              className="w-full rounded-md bg-ai py-3 text-paper transition-colors hover:bg-ai-deep"
             >
               参加する
             </button>

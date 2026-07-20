@@ -9,7 +9,7 @@ export default function TermsPage() {
       <h1 className="font-serif text-3xl">利用規約</h1>
       <p className="mt-2 text-sm text-usuzumi">2026年7月19日 制定</p>
 
-      <div className="mt-8 space-y-8 border border-keisen bg-paper px-6 py-8 text-sm leading-loose">
+      <div className="mt-8 space-y-8 rounded-md border border-keisen bg-paper px-6 py-8 text-sm leading-loose">
         <section>
           <h2 className="border-l-4 border-ai pl-2 font-medium">
             第1条(本サービス)

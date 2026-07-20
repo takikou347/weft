@@ -66,7 +66,7 @@ export default async function NotificationsPage({
       {notifications.length === 0 ? (
         <p className="mt-12 text-center text-usuzumi">通知はまだありません。</p>
       ) : (
-        <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="mt-6 divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {notifications.map((n) => {
             const href = n.payload.item_id
               ? n.payload.space_id

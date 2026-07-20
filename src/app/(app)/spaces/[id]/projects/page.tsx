@@ -84,7 +84,7 @@ export default async function ProjectsPage({
       {(projects ?? []).length === 0 ? (
         <p className="mt-4 text-sm text-usuzumi">まだプロジェクトはありません。</p>
       ) : (
-        <ul className="divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {(projects ?? []).map((p) => {
             const meta = metaOf.get(p.id);
             const isMember = joined.has(p.id);
@@ -99,7 +99,7 @@ export default async function ProjectsPage({
                 ) : (
                   <span className="font-medium text-usuzumi">{p.name}</span>
                 )}
-                <span className="ml-2 border border-keisen px-1.5 text-xs text-usuzumi">
+                <span className="ml-2 rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                   {STATUS_LABELS[meta?.status ?? "planned"]}
                 </span>
                 <p className="mt-1 text-xs text-usuzumi">
@@ -138,11 +138,11 @@ export default async function ProjectsPage({
               required
               maxLength={50}
               placeholder="プロジェクト名"
-              className="flex-1 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+              className="flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
             />
             <button
               type="submit"
-              className="border border-keisen bg-paper px-4 py-1 text-sm hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-4 py-1 text-sm hover:border-ai"
             >
               作成する
             </button>

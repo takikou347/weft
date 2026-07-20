@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { login, type AuthFormState } from "../actions";
 
 const initialState: AuthFormState = { error: null };
@@ -30,49 +34,42 @@ function LoginForm() {
           ログイン
         </p>
 
-        <form
-          action={formAction}
-          className="mt-10 border border-keisen bg-paper px-6 py-8"
-        >
-          {next && <input type="hidden" name="next" value={next} />}
-          <label className="block text-sm" htmlFor="email">
-            メールアドレス
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 outline-none focus:border-ai"
-          />
+        <Card className="mt-10 px-6 py-8">
+          <form action={formAction}>
+            {next && <input type="hidden" name="next" value={next} />}
+            <Label htmlFor="email">メールアドレス</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              className="mt-1"
+            />
 
-          <label className="mt-6 block text-sm" htmlFor="password">
-            パスワード
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 outline-none focus:border-ai"
-          />
+            <Label className="mt-6" htmlFor="password">
+              パスワード
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="mt-1"
+            />
 
-          {state.error && (
-            <p role="alert" className="mt-4 text-sm text-ai-deep">
-              {state.error}
-            </p>
-          )}
+            {state.error && (
+              <p role="alert" className="mt-4 text-sm text-ai-deep">
+                {state.error}
+              </p>
+            )}
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="mt-8 w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
-          >
-            {pending ? "ログインしています…" : "ログイン"}
-          </button>
-        </form>
+            <Button type="submit" disabled={pending} className="mt-8 w-full">
+              {pending ? "ログインしています…" : "ログイン"}
+            </Button>
+          </form>
+        </Card>
 
         <p className="mt-6 text-center text-sm text-usuzumi">
           はじめての方は{" "}

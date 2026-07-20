@@ -46,7 +46,7 @@ export default async function DocsPage({
           まだ文書はありません。
         </p>
       ) : (
-        <ul className="divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {docs.map((doc) => (
             <li key={doc.id}>
               <Link
@@ -105,7 +105,7 @@ export default async function DocsPage({
         )}
         <form
           action={createProjectDoc}
-          className="mt-3 border border-keisen bg-paper px-5 py-6"
+          className="mt-3 rounded-md border border-keisen bg-paper px-5 py-6"
         >
           <input type="hidden" name="space_id" value={id} />
           <label className="block text-sm" htmlFor="doc-title">
@@ -117,7 +117,7 @@ export default async function DocsPage({
             type="text"
             required
             maxLength={100}
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+            className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <label className="mt-4 block text-sm" htmlFor="doc-body">
             本文
@@ -127,12 +127,12 @@ export default async function DocsPage({
             name="body"
             rows={6}
             required
-            className="mt-1 w-full resize-y border border-keisen bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus:border-ai"
+            className="mt-1 w-full resize-y border border-keisen bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <div className="mt-4 text-right">
             <button
               type="submit"
-              className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+              className="rounded-md bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
               保存する
             </button>

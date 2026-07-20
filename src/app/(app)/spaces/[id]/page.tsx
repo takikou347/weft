@@ -49,7 +49,7 @@ export default async function SpaceFeedPage({
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {(shares ?? []).map((share) => {
             const item = share.items as unknown as Item;
             return (
@@ -65,7 +65,7 @@ export default async function SpaceFeedPage({
                     <time dateTime={item.occurred_on}>
                       {formatDateJa(item.occurred_on)}
                     </time>
-                    <span className="border border-keisen px-1.5">
+                    <span className="rounded-sm border border-keisen px-1.5">
                       {TYPE_LABELS[item.type]}
                     </span>
                   </div>

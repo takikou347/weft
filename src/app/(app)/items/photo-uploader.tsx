@@ -80,7 +80,7 @@ export function PhotoUploader({
 
   return (
     <div>
-      <label className="inline-block cursor-pointer border border-keisen bg-paper px-3 py-2 text-sm hover:border-ai">
+      <label className="inline-block cursor-pointer rounded-md border border-keisen bg-paper px-3 py-2 text-sm hover:border-ai">
         {busy ? "アップロードしています…" : "写真を追加する"}
         <input
           ref={inputRef}

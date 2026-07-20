@@ -65,25 +65,25 @@ export default async function DayPage({
       <div className="mt-4 flex flex-wrap gap-2 text-sm">
         <Link
           href={`/items/new?type=diary&date=${date}`}
-          className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+          className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
           日記を書く
         </Link>
         <Link
           href={`/items/new?type=event&date=${date}`}
-          className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+          className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
           予定を追加する
         </Link>
         <Link
           href={`/items/new?type=expense&date=${date}`}
-          className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+          className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
           収支を記録する
         </Link>
         <Link
           href={`/items/new?type=task&date=${date}`}
-          className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+          className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
           タスクを追加する
         </Link>
@@ -100,7 +100,7 @@ export default async function DayPage({
               <h3 className="border-l-4 border-ai pl-2 font-medium">
                 {section.heading}
               </h3>
-              <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+              <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
                 {items
                   .filter((i) => i.type === section.type)
                   .map((item) => (
@@ -127,7 +127,7 @@ export default async function DayPage({
       {items.some((i) => !SECTIONS.some((s) => s.type === i.type)) && (
         <section className="mt-8">
           <h3 className="border-l-4 border-ai pl-2 font-medium">そのほか</h3>
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {items
               .filter((i) => !SECTIONS.some((s) => s.type === i.type))
               .map((item) => (
@@ -136,7 +136,7 @@ export default async function DayPage({
                     href={`/items/${item.id}`}
                     className="block px-4 py-3 hover:bg-washi"
                   >
-                    <span className="mr-2 border border-keisen px-1 text-xs text-usuzumi">
+                    <span className="mr-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
                       {TYPE_LABELS[item.type]}
                     </span>
                     <span className="text-sm">{itemLine(item)}</span>

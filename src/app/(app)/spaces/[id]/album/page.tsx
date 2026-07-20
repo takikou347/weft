@@ -85,10 +85,10 @@ export default async function AlbumPage({
                         src={photoUrls.get(item.id)}
                         alt={item.title ?? "写真"}
                         loading="lazy"
-                        className="aspect-square w-full border border-keisen object-cover"
+                        className="aspect-square w-full rounded-md border border-keisen object-cover"
                       />
                     ) : (
-                      <span className="flex aspect-square w-full items-center justify-center border border-keisen bg-washi text-xs text-usuzumi">
+                      <span className="flex aspect-square w-full items-center justify-center rounded-md border border-keisen bg-washi text-xs text-usuzumi">
                         写真
                       </span>
                     )}
@@ -97,7 +97,7 @@ export default async function AlbumPage({
                   <Link
                     key={item.id}
                     href={`/spaces/${id}/items/${item.id}`}
-                    className="flex aspect-square w-full flex-col justify-between overflow-hidden border border-keisen bg-paper p-2"
+                    className="flex aspect-square w-full flex-col justify-between overflow-hidden rounded-md border border-keisen bg-paper p-2"
                   >
                     <span className="line-clamp-4 text-xs leading-relaxed">
                       {item.title ?? item.body ?? "(無題)"}

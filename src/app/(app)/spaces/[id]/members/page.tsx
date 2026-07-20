@@ -94,7 +94,7 @@ export default async function MembersPage({
 
   return (
     <div>
-      <ul className="divide-y divide-keisen border border-keisen bg-paper">
+      <ul className="divide-y divide-keisen rounded-md border border-keisen bg-paper">
         {members.map((m) => (
           <li
             key={m.user_id}
@@ -107,7 +107,7 @@ export default async function MembersPage({
               )}
             </span>
             <span className="flex items-center gap-3">
-              <span className="border border-keisen px-1.5 text-xs text-usuzumi">
+              <span className="rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                 {ROLE_LABELS[m.role as SpaceRole]}
               </span>
               {canManage && m.user_id !== user.id && m.role !== "owner" && (
@@ -144,7 +144,7 @@ export default async function MembersPage({
           <h4 className="border-l-4 border-ai pl-2 font-medium">
             組織のメンバーを加える
           </h4>
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {orgCandidates.map((c) => (
               <li
                 key={c.user_id}
@@ -179,7 +179,7 @@ export default async function MembersPage({
               {(invitations ?? []).map((inv) => (
                 <li
                   key={inv.id}
-                  className="border border-keisen bg-paper px-4 py-3 text-sm"
+                  className="rounded-md border border-keisen bg-paper px-4 py-3 text-sm"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <code className="min-w-0 flex-1 truncate text-xs">
@@ -208,7 +208,7 @@ export default async function MembersPage({
             <input type="hidden" name="space_id" value={id} />
             <button
               type="submit"
-              className="border border-keisen bg-paper px-4 py-2 text-sm hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-4 py-2 text-sm hover:border-ai"
             >
               新しい招待リンクを作成する
             </button>

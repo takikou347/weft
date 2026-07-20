@@ -35,7 +35,7 @@ export default async function HomePage({
         <h2 className="font-serif text-2xl">ホーム</h2>
         <Link
           href="/items/new"
-          className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+          className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
           記録する
         </Link>
@@ -49,7 +49,7 @@ export default async function HomePage({
           </p>
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="mt-6 divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {(items ?? []).map((item) => (
             <li key={item.id}>
               <Link
@@ -60,7 +60,7 @@ export default async function HomePage({
                   <time dateTime={item.occurred_on}>
                     {formatDateJa(item.occurred_on)}
                   </time>
-                  <span className="border border-keisen px-1.5 text-xs">
+                  <span className="rounded-sm border border-keisen px-1.5 text-xs">
                     {TYPE_LABELS[item.type] ?? item.type}
                   </span>
                 </div>
