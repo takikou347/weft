@@ -234,7 +234,8 @@ async function MonthView({
         </div>
       )}
 
-      <table className="mt-4 w-full border-collapse rounded-md border border-keisen bg-paper text-center">
+      {/* table-fixed で7列を均等幅に固定する(モバイルで横スクロールさせない) */}
+      <table className="mt-4 w-full table-fixed border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
             {WEEKDAYS.map((w) => (
@@ -256,7 +257,7 @@ async function MonthView({
                   <td key={di} className="border border-keisen p-0 align-top">
                     <Link
                       href={`/days/${date}`}
-                      className={`block min-h-20 px-0.5 pb-1 pt-0.5 hover:bg-washi ${
+                      className={`block min-h-14 px-0.5 pb-1 pt-0.5 hover:bg-washi sm:min-h-20 ${
                         date === today ? "bg-washi" : ""
                       }`}
                     >
@@ -273,29 +274,39 @@ async function MonthView({
                         {(chipsByDate.get(date) ?? [])
                           .slice(0, MAX_CHIPS)
                           .map((c) => (
-                            <span
-                              key={c.id}
-                              title={c.label}
-                              className="block truncate rounded-sm px-1 text-[10px] leading-4"
-                              style={
-                                c.spaceColor
-                                  ? {
-                                      backgroundColor: c.spaceColor,
-                                      color: "var(--card)",
-                                    }
-                                  : {
-                                      backgroundColor:
-                                        TAG_COLORS[c.type].bg,
-                                      color: TAG_COLORS[c.type].fg,
-                                    }
-                              }
-                            >
-                              {c.label}
+                            <span key={c.id} title={c.label} className="block">
+                              {/* sm以上: タイトル入りチップ */}
+                              <span
+                                className="hidden truncate rounded-sm px-1 text-[10px] leading-4 sm:block"
+                                style={
+                                  c.spaceColor
+                                    ? {
+                                        backgroundColor: c.spaceColor,
+                                        color: "var(--card)",
+                                      }
+                                    : {
+                                        backgroundColor:
+                                          TAG_COLORS[c.type].bg,
+                                        color: TAG_COLORS[c.type].fg,
+                                      }
+                                }
+                              >
+                                {c.label}
+                              </span>
+                              {/* モバイル: 細い色バー(詳細は日ページで読む) */}
+                              <span
+                                className="mx-0.5 block h-1.5 rounded-sm sm:hidden"
+                                style={{
+                                  backgroundColor:
+                                    c.spaceColor ?? TAG_COLORS[c.type].fg,
+                                }}
+                              />
                             </span>
                           ))}
                         {(chipsByDate.get(date) ?? []).length > MAX_CHIPS && (
-                          <span className="block px-1 text-[10px] leading-4 text-usuzumi">
-                            +{(chipsByDate.get(date) ?? []).length - MAX_CHIPS}件
+                          <span className="block px-1 text-center text-[10px] leading-4 text-usuzumi sm:text-left">
+                            +{(chipsByDate.get(date) ?? []).length - MAX_CHIPS}
+                            <span className="hidden sm:inline">件</span>
                           </span>
                         )}
                       </span>
