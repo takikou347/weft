@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
-import { TYPE_LABELS } from "@/lib/items";
+import {  } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 
 const PAGE_SIZE = 20;
 
@@ -60,9 +61,7 @@ export default async function HomePage({
                   <time dateTime={item.occurred_on}>
                     {formatDateJa(item.occurred_on)}
                   </time>
-                  <span className="rounded-sm border border-keisen px-1.5 text-xs">
-                    {TYPE_LABELS[item.type] ?? item.type}
-                  </span>
+                  <TypeBadge type={item.type} />
                 </div>
                 {item.title && <p className="mt-1 font-medium">{item.title}</p>}
                 {item.body && (

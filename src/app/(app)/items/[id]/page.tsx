@@ -2,18 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
-import {
-  PAPER_CLASS,
-  TASK_STATUS_LABELS,
-  TYPE_LABELS,
-  diaryPayload,
-  eventPayload,
-  expensePayload,
-  formatYen,
-  itemLine,
-  photoPayload,
-  taskPayload,
-} from "@/lib/items";
+import { PAPER_CLASS, TASK_STATUS_LABELS, diaryPayload, eventPayload, expensePayload, formatYen, itemLine, photoPayload, taskPayload } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 import { PhotoUploader } from "../photo-uploader";
 import { createLink, deleteItem, deleteLink } from "../actions";
 import { shareItem, unshareItem } from "../../spaces/actions";
@@ -118,9 +108,7 @@ export default async function ItemDetailPage({
     <div>
       <div className="flex items-baseline gap-3 text-sm text-usuzumi">
         <time dateTime={item.occurred_on}>{formatDateJa(item.occurred_on)}</time>
-        <span className="rounded-sm border border-keisen px-1.5 text-xs">
-          {TYPE_LABELS[item.type]}
-        </span>
+        <TypeBadge type={item.type} />
       </div>
 
       <h2 className="mt-2 font-serif text-2xl">{item.title ?? "(無題)"}</h2>
@@ -325,9 +313,7 @@ export default async function ItemDetailPage({
                 className="flex items-center justify-between px-4 py-3"
               >
                 <Link href={`/items/${linked.id}`} className="min-w-0 flex-1">
-                  <span className="mr-2 rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
-                    {TYPE_LABELS[linked.type]}
-                  </span>
+                  <TypeBadge type={linked.type} className="mr-2" />
                   <span className="text-sm">{itemLine(linked as Item)}</span>
                 </Link>
                 {isOwner && (
@@ -378,9 +364,7 @@ export default async function ItemDetailPage({
                     className="flex items-center justify-between px-4 py-3"
                   >
                     <span className="min-w-0 flex-1 text-sm">
-                      <span className="mr-2 rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
-                        {TYPE_LABELS[c.type]}
-                      </span>
+                      <TypeBadge type={c.type} className="mr-2" />
                       {itemLine(c as Item)}
                     </span>
                     <form action={createLink}>

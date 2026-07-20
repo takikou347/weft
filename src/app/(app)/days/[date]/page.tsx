@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, formatDateJa, normalizeDate, weekdayJa } from "@/lib/date";
-import { TYPE_LABELS, itemLine } from "@/lib/items";
+import { itemLine } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 import type { Item, ItemType } from "@/types/database";
 
 const SECTIONS: { type: ItemType; heading: string }[] = [
@@ -136,9 +137,7 @@ export default async function DayPage({
                     href={`/items/${item.id}`}
                     className="block px-4 py-3 hover:bg-washi"
                   >
-                    <span className="mr-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
-                      {TYPE_LABELS[item.type]}
-                    </span>
+                    <TypeBadge type={item.type} className="mr-2" />
                     <span className="text-sm">{itemLine(item)}</span>
                   </Link>
                 </li>

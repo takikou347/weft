@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
-import { TYPE_LABELS, itemLine } from "@/lib/items";
+import { itemLine } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 import type { Item } from "@/types/database";
 
 const PAGE_SIZE = 20;
@@ -65,9 +66,7 @@ export default async function SpaceFeedPage({
                     <time dateTime={item.occurred_on}>
                       {formatDateJa(item.occurred_on)}
                     </time>
-                    <span className="rounded-sm border border-keisen px-1.5">
-                      {TYPE_LABELS[item.type]}
-                    </span>
+                    <TypeBadge type={item.type} />
                   </div>
                   <p className="mt-1 text-sm">{itemLine(item)}</p>
                   {item.type === "diary" && item.body && (
