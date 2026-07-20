@@ -96,7 +96,7 @@ export function ItemForm({
           {type === "expense" ? (
             <>
               <fieldset className="mt-6">
-                <legend className="text-sm">出入り</legend>
+                <legend className="text-sm">種別</legend>
                 <div className="mt-1 flex gap-6">
                   <label className="flex items-center gap-2">
                     <input
@@ -152,7 +152,7 @@ export function ItemForm({
               </datalist>
 
               <Label className="mt-6" htmlFor="title">
-                摘要(なくてもかまいません)
+                メモ(任意)
               </Label>
               <Input
                 id="title"
@@ -165,7 +165,7 @@ export function ItemForm({
           ) : (
             <>
               <Label className="mt-6" htmlFor="title">
-                題{type === "diary" ? "(なくてもかまいません)" : ""}
+                タイトル{type === "diary" ? "(任意)" : ""}
               </Label>
               <Input
                 id="title"
@@ -190,7 +190,7 @@ export function ItemForm({
               </label>
               <div className="mt-4 flex items-center gap-3">
                 <div>
-                  <Label htmlFor="start_time">はじまり</Label>
+                  <Label htmlFor="start_time">開始</Label>
                   <Input
                     id="start_time"
                     name="start_time"
@@ -201,7 +201,7 @@ export function ItemForm({
                 </div>
                 <span className="pt-6 text-usuzumi">〜</span>
                 <div>
-                  <Label htmlFor="end_time">おわり</Label>
+                  <Label htmlFor="end_time">終了</Label>
                   <Input
                     id="end_time"
                     name="end_time"
@@ -237,7 +237,7 @@ export function ItemForm({
           {type === "task" && (
             <>
               <Label className="mt-6" htmlFor="status">
-                すすみ具合
+                ステータス
               </Label>
               <NativeSelect
                 id="status"

@@ -14,6 +14,12 @@ Weft の開発フローの取り決め。GitHub Flow をベースにする。
   - AI(Claude Code)セッションが作るブランチは `claude/**` のままでよい
 - **1 Issue = 1 ブランチ = 1 PR** を原則とし、ブランチは短命に保つ(長くても数日で merge する)
 - merge 後のブランチは削除する
+- **ルールの強制(二重の防衛線)**:
+  - Claude Code セッション側: `.claude/settings.json` のフック(`.claude/hooks/guard-git.sh`)が
+    main への直 push・force push・main の削除を決定論的に遮断する
+  - GitHub 側: Ruleset `protect-main`(`scripts/setup-repo.sh` で設定)が同じ内容を人間の操作にも強制する
+- 分野別の実装規約は `.claude/rules/`(`rls.md` / `ui.md` / `testing.md`)にあり、
+  該当分野を変更するときに必ず参照する
 
 ## コミット規約
 

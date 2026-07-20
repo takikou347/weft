@@ -46,7 +46,7 @@ test("ユーザーAが記録を作成し、自分では見える", async ({ brow
   await signupViaUi(page, alice);
 
   await page.getByRole("link", { name: "記録する" }).click();
-  await page.getByLabel("題(なくてもかまいません)").fill(aliceDiary.title);
+  await page.getByLabel("タイトル(任意)").fill(aliceDiary.title);
   await page.getByLabel("本文").fill(aliceDiary.body);
   await page.getByRole("button", { name: "保存する" }).click();
   await page.waitForURL(/\/days\/\d{4}-\d{2}-\d{2}/);

@@ -82,7 +82,7 @@ test("共有とコメントでアプリ内通知が届く", async ({ browser }) 
 
   // A が日記を書いて共有する → B に「共有しました」の通知(F-11-1)
   await aPage.goto("/items/new?type=diary");
-  await aPage.getByLabel("題(なくてもかまいません)").fill(diaryTitle);
+  await aPage.getByLabel("タイトル(任意)").fill(diaryTitle);
   await aPage.getByRole("button", { name: "保存する" }).click();
   await aPage.waitForURL(/\/days\//);
   await aPage.getByText(diaryTitle).first().click();

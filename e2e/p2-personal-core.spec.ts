@@ -28,8 +28,8 @@ test("予定を作成し、その日ページに表示される", async ({ page 
   await signupViaUi(page);
 
   await page.goto("/items/new?type=event");
-  await page.getByLabel("題").fill(eventTitle);
-  await page.getByLabel("はじまり").fill("10:30");
+  await page.getByLabel("タイトル").fill(eventTitle);
+  await page.getByLabel("開始").fill("10:30");
   await page.getByLabel("場所").fill("城崎");
   await page.getByRole("button", { name: "保存する" }).click();
   await page.waitForURL(/\/days\/\d{4}-\d{2}-\d{2}/);
@@ -76,7 +76,7 @@ test("収支をつけると月次集計に反映される", async ({ page }) => 
   await page.goto("/items/new?type=expense");
   await page.getByLabel("金額(円)").fill("2980");
   await page.getByLabel("費目").fill("交通");
-  await page.getByLabel("摘要(なくてもかまいません)").fill("特急券");
+  await page.getByLabel("メモ(任意)").fill("特急券");
   await page.getByRole("button", { name: "保存する" }).click();
   await page.waitForURL(/\/days\/\d{4}-\d{2}-\d{2}/);
 
