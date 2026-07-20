@@ -1,7 +1,7 @@
 # Weft 詳細設計書
 
-実装(第1弾 P1〜P6)に対する詳細設計書。仕様の原本は [要件定義書](../requirements.md)、
-設計判断の経緯は [decisions.md](../decisions.md) を参照。
+実装(第1弾 P1〜P6)に対する詳細設計書。仕様の原本は [要件定義書](../requirements/requirements.md)、
+設計判断の経緯は [decisions.md](../development/decisions.md) を参照。
 
 ## 目次
 

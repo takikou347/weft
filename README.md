@@ -3,9 +3,12 @@
 個人の「予定・記録・お金」を一元管理し、選んだものだけをグループ・組織に共有できるWebアプリ。
 コンセプトは「人生を経営する」。
 
-- 仕様: [docs/requirements.md](docs/requirements.md)
-- 開発ルール・不変条件: [CLAUDE.md](CLAUDE.md)
-- 設計判断の記録: [docs/decisions.md](docs/decisions.md)
+- ドキュメント案内: [docs/README.md](docs/README.md)
+- 仕様(要件定義書): [docs/requirements/requirements.md](docs/requirements/requirements.md)
+- 詳細設計書: [docs/design/](docs/design/README.md)
+- 開発ルール(ブランチ運用・レビュー体制): [docs/development/workflow.md](docs/development/workflow.md)
+- 不変条件: [CLAUDE.md](CLAUDE.md)
+- 設計判断の記録: [docs/development/decisions.md](docs/development/decisions.md)
 
 ## 技術スタック
 
