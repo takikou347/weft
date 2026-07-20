@@ -28,28 +28,30 @@ Weft の開発フローの取り決め。GitHub Flow をベースにする。
 - Issue に紐づく PR は本文に `Closes #<番号>` を書く
 - **merge の条件**(すべて満たすこと):
   1. CI が green(型チェック・lint・ユニットテスト・RLS 分離テスト)
-  2. 自動レビュー(`claude-review.yml`)の `[must]` 指摘がゼロ
-  3. RLS に関わる変更は、分離テスト(他人の非共有データが見えないこと)の追加・更新を含む
+  2. RLS に関わる変更は、分離テスト(他人の非共有データが見えないこと)の追加・更新を含む
+  3. (自動レビューを有効化した後は)`[must]` 指摘がゼロであること
 - **merge の担当**:
   - **運用開始(一般公開)まで**: 上記条件を満たせば作成者(AI セッション含む)が自分で merge してよい
   - **一般公開後**: 人間のレビュー承認(Approve)を必須にする。GitHub のブランチ保護で
     required review / required status checks を設定して切り替える
 - レビュー指摘の分類は `[must]`(修正必須)/ `[nits]`(任意)。`[must]` を解消せずに merge しない
-- push はまとめて行う(push のたびに CI と自動レビューが走るため、コミットごとに push しない)
+- push はまとめて行う(push のたびに CI が走るため、コミットごとに push しない)
 
 ## CI と自動化(.github/workflows/)
 
 | ワークフロー | トリガー | 内容 |
 | --- | --- | --- |
 | `ci.yml` | push(main / claude/\*\*)・PR | 型チェック・lint・ユニットテスト、ローカル Supabase でのマイグレーション検証と RLS 分離テスト(E2E) |
-| `claude-review.yml` | CI 成功時(workflow_run) | PR 差分の自動コードレビュー。結果を PR コメントに投稿 |
-| `claude-autofix-ci.yml` | CI 失敗時(workflow_run) | AI 運用ブランチの PR で CI が落ちたら原因を診断して修正 push(同一 PR 2 回まで。超えたら人間へ引き継ぎ) |
-| `claude.yml` | Issue / PR コメント | `@claude` メンションで調査・回答・実装を依頼できる入口 |
+| `claude-review.yml` | CI 成功時(workflow_run) | PR 差分の自動コードレビュー。結果を PR コメントに投稿(**現在は未稼働**) |
+| `claude-autofix-ci.yml` | CI 失敗時(workflow_run) | AI 運用ブランチの PR で CI が落ちたら原因を診断して修正 push(同一 PR 2 回まで。超えたら人間へ引き継ぎ)(**現在は未稼働**) |
+| `claude.yml` | Issue / PR コメント | `@claude` メンションで調査・回答・実装を依頼できる入口(**現在は未稼働**) |
 | `supabase-keepalive.yml` | 定期 | Supabase 無料プランの一時停止防止 |
 
-- Claude 系ワークフローはリポジトリ Secrets の `CLAUDE_CODE_OAUTH_TOKEN` が前提。
-  未設定の場合は自動でスキップされる(CI は影響を受けない)
-- 自動レビューの観点は `.claude/agents/code-reviewer.md` に定義する(RLS・共有モデルの不変条件を最優先)
+- **Claude 系ワークフロー(自動レビュー等)は当面使わない方針**。リポジトリ Secrets の
+  `CLAUDE_CODE_OAUTH_TOKEN` が未設定の間は自動でスキップされ、何も実行されない(CI は影響を受けない)。
+  導入を決めたら Secrets を登録するだけで有効化される
+- 自動レビューの観点は `.claude/agents/code-reviewer.md` に定義済み(RLS・共有モデルの不変条件を最優先)。
+  Claude Code セッションでのセルフレビューにもこの観点を使う
 
 ## リポジトリ設定(初回のみ)
 
