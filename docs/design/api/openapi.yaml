@@ -1,0 +1,623 @@
+openapi: 3.0.3
+info:
+  title: Weft API(Supabase 利用面)
+  version: "1.0.0"
+  description: |
+    Weft は独自のAPIサーバーを持たず、Supabase の自動生成API(PostgREST)・Auth(GoTrue)・Storage を
+    anon キー+ユーザーJWTで直接利用する。本書は **アプリが実際に使用しているエンドポイントとその契約** を定義する。
+
+    ## 認可の原則
+    - すべてのデータアクセスは **RLS** で行単位に制御される(詳細は database.md)。
+      APIを直接叩いても、そのユーザーに見えない行は返らない/書けない。
+    - `apikey`(anonキー)と `Authorization: Bearer <ユーザーJWT>` の2ヘッダーが必要。
+    - 画面からの書き込みは原則 Next.js の Server Actions 経由(server-actions.md 参照)。
+      本書のPOST/PATCH/DELETEはその内部で発行されるリクエストの契約。
+
+    ## PostgREST の記法(共通)
+    - フィルタ: `?列=eq.値` `neq` `gt/gte/lt/lte` `in.(a,b)` `is.null` `ilike.*語*` `or=(a.eq.1,b.eq.2)`
+    - 並び: `?order=列.desc,列2.asc` / ページング: `?limit=20&offset=0`
+    - 件数: リクエストヘッダー `Prefer: count=exact` → レスポンス `Content-Range: 0-19/全件数`
+    - 単一行取得: `Accept: application/vnd.pgrst.object+json`(0件は406/PGRST116)
+    - 埋め込み: `?select=shared_at,items!inner(*)`(FK経由の内部結合)
+servers:
+  - url: "{SUPABASE_URL}"
+    variables:
+      SUPABASE_URL:
+        default: http://127.0.0.1:54321
+        description: SupabaseプロジェクトのURL
+
+tags:
+  - name: Auth
+  - name: Items
+  - name: Sharing
+  - name: Spaces
+  - name: Social
+  - name: Money
+  - name: Org
+  - name: Notifications
+  - name: RPC
+  - name: Storage
+
+security:
+  - apikey: []
+    bearerAuth: []
+
+paths:
+  # ============================================================ Auth
+  /auth/v1/signup:
+    post:
+      tags: [Auth]
+      summary: 登録(F-01-1)。成功時にDBトリガで profiles・個人スペース・既定費目が自動作成される(F-01-3)
+      security: [{ apikey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                data:
+                  type: object
+                  properties:
+                    display_name: { type: string, description: 表示名(未指定時はメールのローカル部) }
+      responses:
+        "200": { description: セッション発行(メール確認オフ時), content: { application/json: { schema: { $ref: "#/components/schemas/Session" } } } }
+        "422": { description: "登録済み(error_code: user_already_exists)" }
+  /auth/v1/token:
+    post:
+      tags: [Auth]
+      summary: ログイン(grant_type=password)
+      security: [{ apikey: [] }]
+      parameters:
+        - { name: grant_type, in: query, required: true, schema: { type: string, enum: [password] } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: セッション, content: { application/json: { schema: { $ref: "#/components/schemas/Session" } } } }
+        "400": { description: "認証失敗(error_code: invalid_credentials)" }
+  /auth/v1/user:
+    get:
+      tags: [Auth]
+      summary: セッション検証+ユーザー取得(middlewareが毎リクエスト実行)
+      responses:
+        "200": { description: ユーザー, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { description: 無効なセッション }
+  /auth/v1/logout:
+    post:
+      tags: [Auth]
+      summary: ログアウト
+      responses: { "204": { description: 破棄済み } }
+  /auth/v1/admin/users/{id}:
+    delete:
+      tags: [Auth]
+      summary: 退会(F-01-5)。service_roleのみ・Server Action deleteAccount 内部からだけ呼ぶ
+      description: FKカスケードで本人起点の全行が削除される。Storageの写真は事前に別途削除。
+      security: [{ serviceRole: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: 削除済み } }
+
+  # ============================================================ Items
+  /rest/v1/items:
+    get:
+      tags: [Items]
+      summary: アイテム取得(RLS=作成者or共有先メンバーの行のみ返る)
+      description: |
+        主な利用パターン:
+        - 帳面: `order=occurred_on.desc,created_at.desc&limit=20&offset=0` + count=exact
+        - こよみ: `occurred_on=gte.月初&occurred_on=lte.月末&order=occurred_on.asc`
+        - その日: `occurred_on=eq.YYYY-MM-DD`
+        - 詳細: `id=eq.<uuid>`(0/1件)
+        - リンク検索: `title=ilike.*語*&id=neq.<自分>&limit=10`
+      parameters:
+        - { name: select, in: query, schema: { type: string }, example: "*" }
+        - { name: order, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        "200":
+          description: 一覧
+          headers: { Content-Range: { schema: { type: string }, description: "count=exact時 0-19/42" } }
+          content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Item" } } } }
+    post:
+      tags: [Items]
+      summary: 作成(F-03-2/F-04-1/F-05-1等)。RLS=本人 かつ origin_space のメンバー
+      requestBody:
+        content: { application/json: { schema: { $ref: "#/components/schemas/ItemInsert" } } }
+      responses:
+        "201": { description: 作成済み(Prefer:return=representation時は行を返す) }
+        "403": { description: RLS違反 }
+    patch:
+      tags: [Items]
+      summary: 更新(?id=eq.<uuid>)。RLS=作成者のみ(該当外は0件更新)
+      responses: { "204": { description: 更新済み } }
+    delete:
+      tags: [Items]
+      summary: 削除(?id=eq.<uuid>)。RLS=作成者のみ
+      responses: { "204": { description: 削除済み } }
+
+  /rest/v1/item_shares:
+    get:
+      tags: [Sharing]
+      summary: 共有状態の取得(F-06-4)/回覧板・アルバム・つとめ等のフィード
+      description: |
+        - バッジ: `item_id=eq.<uuid>&select=space_id`
+        - 回覧板: `space_id=eq.<uuid>&select=shared_at,shared_by,items!inner(*)&order=shared_at.desc` + count
+        - アルバム: 上記+ `items.type=in.(photo,diary)`
+        - つとめ: 上記+ `items.type=eq.task` / こよみ: `items.occurred_on=gte/lte`
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ItemShare" } } } } }
+    post:
+      tags: [Sharing]
+      summary: 差し出す=行追加のみ(不変条件2)。RLS=アイテム作成者かつ共有先メンバー
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [item_id, space_id, shared_by]
+              properties:
+                item_id: { type: string, format: uuid }
+                space_id: { type: string, format: uuid }
+                shared_by: { type: string, format: uuid, description: 本人のuid(RLSで強制) }
+      responses:
+        "201": { description: 共有済み(共有先スペース全員へ通知トリガ発火) }
+        "403": { description: RLS違反(他人のアイテム等) }
+        "409": { description: 既に共有済み(23505) }
+    delete:
+      tags: [Sharing]
+      summary: 取り下げる(?item_id=eq.&space_id=eq.)。RLS=アイテム作成者のみ。元データは残る
+      responses: { "204": { description: 解除済み } }
+
+  /rest/v1/links:
+    get:
+      tags: [Items]
+      summary: 双方向リンク(F-09)。`or=(item_id_a.eq.X,item_id_b.eq.X)`。両端とも閲覧できる行のみ返る(F-09-5)
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Link" } } } } }
+    post:
+      tags: [Items]
+      summary: 結びつける。a<b に正規化して送る。RLS=本人かつ両端閲覧可
+      responses: { "201": { description: 作成済み }, "409": { description: 重複 } }
+    delete:
+      tags: [Items]
+      summary: ほどく(?item_id_a=eq.&item_id_b=eq.)。RLS=リンク作成者
+      responses: { "204": { description: 削除済み } }
+
+  # ============================================================ Spaces
+  /rest/v1/spaces:
+    get:
+      tags: [Spaces]
+      summary: スペース取得。RLS=メンバー(+親組織owner/adminは配下projectの行も可視)
+      description: |
+        - つながり一覧: `type=neq.personal&parent_space_id=is.null&order=created_at`
+        - 個人スペース: `type=eq.personal&created_by=eq.<uid>`(単一)
+        - しごと一覧: `parent_space_id=eq.<orgId>`
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Space" } } } } }
+    patch:
+      tags: [Spaces]
+      summary: 設定変更(F-02-6 名前・テーマカラー)。RLS=owner/admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 50 }
+                settings: { type: object, properties: { color: { type: string, pattern: "^#[0-9a-fA-F]{6}$" } } }
+      responses: { "204": { description: 更新済み } }
+
+  /rest/v1/space_members:
+    get:
+      tags: [Spaces]
+      summary: なかま一覧(?space_id=eq.&order=joined_at)。RLS=メンバーのみ
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SpaceMember" } } } } }
+    delete:
+      tags: [Spaces]
+      summary: 退出/除名(F-02-5)(?space_id=eq.&user_id=eq.)。RLS=本人(owner除く)/owner・adminがowner以外
+      responses: { "204": { description: 削除済み } }
+
+  /rest/v1/invitations:
+    get:
+      tags: [Spaces]
+      summary: 招待一覧(?space_id=eq.&expires_at=gt.now)。RLS=owner/adminのみ(トークンは非メンバー不可視)
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Invitation" } } } } }
+    post:
+      tags: [Spaces]
+      summary: 招待状の発行(F-02-3)。token/expires_at(7日)はDB既定値
+      requestBody:
+        content: { application/json: { schema: { type: object, required: [space_id, created_by], properties: { space_id: { type: string }, created_by: { type: string } } } } }
+      responses: { "201": { description: 発行済み } }
+    delete:
+      tags: [Spaces]
+      summary: 招待状を破る(?id=eq.)
+      responses: { "204": { description: 削除済み } }
+
+  /rest/v1/profiles:
+    get:
+      tags: [Spaces]
+      summary: プロフィール。RLS=本人+同一スペースのメンバーのみ
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Profile" } } } } }
+    patch:
+      tags: [Spaces]
+      summary: 表示名の変更(F-01-4)(?id=eq.<自分>)。RLS=本人
+      responses: { "204": { description: 更新済み } }
+
+  # ============================================================ Social
+  /rest/v1/comments:
+    get:
+      tags: [Social]
+      summary: コメント(F-07-4)(?item_id=eq.&space_id=eq.&order=created_at)。スペース全員に可視
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Comment" } } } } }
+    post:
+      tags: [Social]
+      summary: 書き込む。RLS=メンバー本人かつ共有中アイテムのみ。1〜2000字
+      responses: { "201": { description: 作成済み(アイテム作成者へ通知) } }
+    delete:
+      tags: [Social]
+      summary: 消す(?id=eq.)。RLS=本人
+      responses: { "204": { description: 削除済み } }
+
+  /rest/v1/reactions:
+    get:
+      tags: [Social]
+      summary: スタンプ(F-07-5)(?item_id=eq.&space_id=eq.)
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Reaction" } } } } }
+    post:
+      tags: [Social]
+      summary: 押す(トグルON)。主キー=item×space×user×emoji
+      responses: { "201": { description: 作成済み(アイテム作成者へ通知) } }
+    delete:
+      tags: [Social]
+      summary: 取り消す(トグルOFF)
+      responses: { "204": { description: 削除済み } }
+
+  # ============================================================ Money
+  /rest/v1/expense_categories:
+    get:
+      tags: [Money]
+      summary: 費目(F-05-2)(?order=position)。RLS=本人のみ
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ExpenseCategory" } } } } }
+    post: { tags: [Money], summary: "加える(user_id×name一意)", responses: { "201": { description: 作成済み } } }
+    delete: { tags: [Money], summary: "除く(?id=eq.)。記録済み収支には影響しない", responses: { "204": { description: 削除済み } } }
+
+  /rest/v1/settlements:
+    get:
+      tags: [Money]
+      summary: 立替の記録(F-07-6)(?space_id=eq.&order=created_at.desc)。RLS=メンバー
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Settlement" } } } } }
+    post:
+      tags: [Money]
+      summary: 記す。金額は正整数。participants はメンバーuuid配列(アプリ側でも検証)
+      responses: { "201": { description: 作成済み(スペース全員へ通知) } }
+    patch: { tags: [Money], summary: "精算済み⇄精算前(?id=eq.)。RLS=記録者or支払者", responses: { "204": { description: 更新済み } } }
+    delete: { tags: [Money], summary: "消す(?id=eq.)。RLS=記録者or支払者", responses: { "204": { description: 削除済み } } }
+
+  # ============================================================ Org
+  /rest/v1/projects_meta:
+    get:
+      tags: [Org]
+      summary: しごとの情報(F-08-1)(?space_id=eq. / in.())。RLS=メンバー+親組織owner/admin
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ProjectMeta" } } } } }
+    patch: { tags: [Org], summary: "状態・期間・予算総額の更新。RLS=owner/admin(§7)", responses: { "204": { description: 更新済み } } }
+
+  /rest/v1/budgets:
+    get:
+      tags: [Org]
+      summary: 費目別予算(F-08-3)(?space_id=eq.&order=created_at)
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Budget" } } } } }
+    post: { tags: [Org], summary: "加える。RLS=owner/admin", responses: { "201": { description: 作成済み } } }
+    delete: { tags: [Org], summary: "消す(?id=eq.)。RLS=owner/admin", responses: { "204": { description: 削除済み } } }
+
+  # ============================================================ Notifications
+  /rest/v1/notifications:
+    get:
+      tags: [Notifications]
+      summary: 便り(F-11-1)(order=created_at.desc + count / 未読数は HEAD + read_at=is.null)。RLS=本人のみ
+      responses:
+        "200": { description: 一覧, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Notification" } } } } }
+    patch:
+      tags: [Notifications]
+      summary: すべて既読(?read_at=is.null に read_at=now を設定)。RLS=本人
+      responses: { "204": { description: 更新済み } }
+
+  # ============================================================ RPC
+  /rest/v1/rpc/create_group:
+    post:
+      tags: [RPC]
+      summary: つどいの作成(F-02-1)。definer=スペース+owner登録を原子的に
+      requestBody: { content: { application/json: { schema: { type: object, required: [group_name], properties: { group_name: { type: string, maxLength: 50 } } } } } }
+      responses: { "200": { description: 作成したspace_id, content: { application/json: { schema: { type: string, format: uuid } } } } }
+  /rest/v1/rpc/create_organization:
+    post:
+      tags: [RPC]
+      summary: つとめ先の作成(F-02-1)
+      requestBody: { content: { application/json: { schema: { type: object, required: [org_name], properties: { org_name: { type: string, maxLength: 50 } } } } } }
+      responses: { "200": { description: 作成したspace_id, content: { application/json: { schema: { type: string, format: uuid } } } } }
+  /rest/v1/rpc/create_project:
+    post:
+      tags: [RPC]
+      summary: しごとの作成(F-02-2)。呼び出し元が組織owner/adminでなければエラー
+      requestBody: { content: { application/json: { schema: { type: object, required: [org_id, project_name], properties: { org_id: { type: string, format: uuid }, project_name: { type: string, maxLength: 50 } } } } } }
+      responses: { "200": { description: 作成したspace_id, content: { application/json: { schema: { type: string, format: uuid } } } } }
+  /rest/v1/rpc/add_project_member:
+    post:
+      tags: [RPC]
+      summary: 親組織のなかまをしごとへ加える。呼び出し元=プロジェクトowner/admin、対象=組織メンバーのみ
+      requestBody: { content: { application/json: { schema: { type: object, required: [project_id, target_user_id], properties: { project_id: { type: string }, target_user_id: { type: string } } } } } }
+      responses: { "200": { description: 追加済み(冪等) } }
+  /rest/v1/rpc/invitation_preview:
+    post:
+      tags: [RPC]
+      summary: 招待状の下見(参加前にスペース名と期限切れを確認)
+      requestBody: { content: { application/json: { schema: { type: object, required: [invite_token], properties: { invite_token: { type: string } } } } } }
+      responses:
+        "200":
+          description: 0行=無効トークン
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    space_name: { type: string }
+                    space_type: { type: string, enum: [personal, group, organization, project] }
+                    expired: { type: boolean }
+  /rest/v1/rpc/accept_invitation:
+    post:
+      tags: [RPC]
+      summary: なかまに入る(F-02-3)。期限内トークンで member 登録(冪等)。期限切れ・無効はエラー
+      requestBody: { content: { application/json: { schema: { type: object, required: [invite_token], properties: { invite_token: { type: string } } } } } }
+      responses: { "200": { description: 参加したspace_id, content: { application/json: { schema: { type: string, format: uuid } } } } }
+  /rest/v1/rpc/update_task_status:
+    post:
+      tags: [RPC]
+      summary: つとめのすすみ具合を変更。作成者+担当者のみ(§6.3の唯一の例外)。payload.statusのみ書き換え
+      requestBody: { content: { application/json: { schema: { type: object, required: [target_item_id, new_status], properties: { target_item_id: { type: string }, new_status: { type: string, enum: [todo, doing, done] } } } } } }
+      responses: { "200": { description: 変更済み }, "400": { description: 権限なし/不正な値 } }
+  /rest/v1/rpc/expense_monthly_summary:
+    post:
+      tags: [RPC]
+      summary: 自分の収支の月次集計(F-05-3)。SECURITY INVOKER(RLS適用)
+      requestBody: { content: { application/json: { schema: { type: object, required: [target_month], properties: { target_month: { type: string, format: date, example: "2026-07-01" } } } } } }
+      responses:
+        "200":
+          description: 費目×収支別の合計
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category: { type: string }
+                    kind: { type: string, enum: [income, expense] }
+                    total: { type: integer }
+                    entry_count: { type: integer }
+  /rest/v1/rpc/space_expense_summary:
+    post:
+      tags: [RPC]
+      summary: スペースへ共有された収支の合算(予実の実績・損益 F-05-5/F-08-3)。INVOKER(RLS適用)
+      requestBody: { content: { application/json: { schema: { type: object, required: [target_space_id], properties: { target_space_id: { type: string } } } } } }
+      responses:
+        "200":
+          description: 収支別合計
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind: { type: string }
+                    total: { type: integer }
+                    entry_count: { type: integer }
+
+  # ============================================================ Storage
+  /storage/v1/object/photos/{path}:
+    post:
+      tags: [Storage]
+      summary: 写真アップロード(F-04-1)。クライアントで長辺1600px/JPEGに圧縮してから送る
+      description: RLS=パスの先頭フォルダが自分のuidの場合のみ書き込み可(`{uid}/{uuid}.jpg`)
+      parameters: [{ name: path, in: path, required: true, schema: { type: string }, example: "u-tsumugi/3f2a….jpg" }]
+      requestBody: { content: { image/jpeg: { schema: { type: string, format: binary } } } }
+      responses: { "200": { description: 保存済み }, "403": { description: 他人のフォルダ } }
+  /storage/v1/object/sign/photos/{path}:
+    post:
+      tags: [Storage]
+      summary: 署名付きURLの発行(表示用・1時間)。RLS=自分のファイル or 対応photoアイテムが共有されている場合のみ
+      parameters: [{ name: path, in: path, required: true, schema: { type: string } }]
+      requestBody: { content: { application/json: { schema: { type: object, properties: { expiresIn: { type: integer, example: 3600 } } } } } }
+      responses:
+        "200": { description: URL, content: { application/json: { schema: { type: object, properties: { signedURL: { type: string } } } } } }
+        "400": { description: 権限なし }
+
+components:
+  securitySchemes:
+    apikey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: Supabase anon キー
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: ログインユーザーのアクセストークン
+    serviceRole:
+      type: http
+      scheme: bearer
+      description: service_role キー(サーバー専用・退会処理のみ)
+
+  schemas:
+    Session:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, example: bearer }
+        expires_in: { type: integer }
+        refresh_token: { type: string }
+        user: { $ref: "#/components/schemas/User" }
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string }
+        user_metadata: { type: object, properties: { display_name: { type: string } } }
+    Profile:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        display_name: { type: string }
+        avatar_url: { type: string, nullable: true }
+    Space:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [personal, group, organization, project] }
+        name: { type: string }
+        parent_space_id: { type: string, nullable: true, description: projectのみ親組織を持つ }
+        settings: { type: object, properties: { color: { type: string } } }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    SpaceMember:
+      type: object
+      properties:
+        space_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        role: { type: string, enum: [owner, admin, member] }
+        joined_at: { type: string, format: date-time }
+    Invitation:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid }
+        token: { type: string, description: "122bitランダム。URLは /invite/{token}" }
+        expires_at: { type: string, format: date-time, description: 既定=発行から7日 }
+        created_by: { type: string, format: uuid }
+    Item:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [event, diary, expense, task, document, photo] }
+        owner_id: { type: string, format: uuid }
+        origin_space_id: { type: string, format: uuid }
+        occurred_on: { type: string, format: date }
+        title: { type: string, nullable: true }
+        body: { type: string, nullable: true }
+        payload: { type: object, description: type別の固有属性(database.md参照) }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ItemInsert:
+      type: object
+      required: [type, owner_id, origin_space_id, occurred_on]
+      properties:
+        type: { type: string, enum: [event, diary, expense, task, document, photo] }
+        owner_id: { type: string, description: 本人のuid(RLSで強制) }
+        origin_space_id: { type: string, description: 個人アイテムは個人スペース、プロジェクトのつとめ/おぼえはそのproject }
+        occurred_on: { type: string, format: date }
+        title: { type: string, nullable: true }
+        body: { type: string, nullable: true }
+        payload: { type: object }
+    ItemShare:
+      type: object
+      properties:
+        item_id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid }
+        shared_by: { type: string, format: uuid }
+        shared_at: { type: string, format: date-time }
+        items: { $ref: "#/components/schemas/Item", description: "select=items!inner(*) 指定時のみ" }
+    Link:
+      type: object
+      properties:
+        item_id_a: { type: string, format: uuid, description: 常に item_id_a < item_id_b }
+        item_id_b: { type: string, format: uuid }
+        created_by: { type: string, format: uuid }
+    Comment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        item_id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid, description: どのスペース文脈の書き込みか }
+        author_id: { type: string, format: uuid }
+        body: { type: string, maxLength: 2000 }
+        created_at: { type: string, format: date-time }
+    Reaction:
+      type: object
+      properties:
+        item_id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        emoji: { type: string, maxLength: 8, description: "基本セット: 🌸 👏 祝 見た 🍵" }
+    ExpenseCategory:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        name: { type: string, maxLength: 20 }
+        position: { type: integer }
+    Settlement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid }
+        event_item_id: { type: string, nullable: true }
+        title: { type: string, maxLength: 100 }
+        payer_id: { type: string, format: uuid }
+        amount: { type: integer, minimum: 1 }
+        participants: { type: array, items: { type: string, format: uuid } }
+        status: { type: string, enum: [open, settled] }
+        created_by: { type: string, format: uuid }
+    ProjectMeta:
+      type: object
+      properties:
+        space_id: { type: string, format: uuid }
+        status: { type: string, enum: [planned, active, done] }
+        start_on: { type: string, format: date, nullable: true }
+        end_on: { type: string, format: date, nullable: true }
+        budget_total: { type: integer, minimum: 0 }
+    Budget:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        space_id: { type: string, format: uuid }
+        category: { type: string, maxLength: 20 }
+        planned_amount: { type: integer, minimum: 0 }
+        period: { type: string, nullable: true, description: "YYYY-MM。null=全期間(第1弾UIはnullのみ)" }
+    Notification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        type: { type: string, enum: [shared, comment, reaction, task_assigned, settlement] }
+        payload:
+          type: object
+          properties:
+            item_id: { type: string }
+            space_id: { type: string }
+            actor_id: { type: string }
+            settlement_id: { type: string }
+            emoji: { type: string }
+        read_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
