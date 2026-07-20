@@ -22,22 +22,22 @@ export default async function InvitePage({
 
   return (
     <div className="mx-auto max-w-sm text-center">
-      <h2 className="font-serif text-2xl">招待状</h2>
+      <h2 className="font-serif text-2xl">招待</h2>
 
       {!preview ? (
         <div className="mt-8 border border-keisen bg-paper px-6 py-8">
           <p className="text-sm text-usuzumi">
-            この招待状は見あたりませんでした。
+            この招待は見つかりませんでした。
             <br />
-            すでに破られたのかもしれません。
+            すでに削除された可能性があります。
           </p>
         </div>
       ) : preview.expired ? (
         <div className="mt-8 border border-keisen bg-paper px-6 py-8">
           <p className="text-sm text-usuzumi">
-            「{preview.space_name}」への招待状は、期限が過ぎています。
+            「{preview.space_name}」への招待は、期限が過ぎています。
             <br />
-            あたらしい招待状をお願いしてみてください。
+            新しい招待の発行を依頼してください。
           </p>
         </div>
       ) : (
@@ -47,7 +47,7 @@ export default async function InvitePage({
           </p>
           <p className="mt-1 font-serif text-xl">{preview.space_name}</p>
           <p className="mt-4 text-sm text-usuzumi">
-            へお招きいただいています。
+            へ招待されています。
           </p>
 
           {error && (
@@ -62,7 +62,7 @@ export default async function InvitePage({
               type="submit"
               className="w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep"
             >
-              なかまに入る
+              参加する
             </button>
           </form>
         </div>
@@ -73,7 +73,7 @@ export default async function InvitePage({
           href="/"
           className="text-sm text-usuzumi underline underline-offset-4"
         >
-          帳面へもどる
+          ホームへ戻る
         </Link>
       </p>
     </div>

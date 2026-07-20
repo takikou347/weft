@@ -13,7 +13,7 @@ import type { Item } from "@/types/database";
 
 const WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
-// 共有カレンダー(F-07-1): このスペースへ差し出された予定・記録の月表示
+// 共有カレンダー(F-07-1): このスペースへ共有された予定・記録の月表示
 export default async function SpaceCalendarPage({
   params,
   searchParams,
@@ -115,7 +115,7 @@ export default async function SpaceCalendarPage({
         <h4 className="border-l-4 border-ai pl-2 font-medium">この月の共有</h4>
         {items.length === 0 ? (
           <p className="mt-3 text-sm text-usuzumi">
-            この月に差し出された記録はありません。
+            この月に共有された記録はありません。
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">

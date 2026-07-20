@@ -11,9 +11,9 @@ export default function NewSpacePage() {
 
   return (
     <div>
-      <h2 className="font-serif text-2xl">あたらしいつながり</h2>
+      <h2 className="font-serif text-2xl">新しいスペース</h2>
       <p className="mt-1 text-sm text-usuzumi">
-        差し出した記録だけが、なかまに見えます。
+        共有した記録だけが、メンバーに見えます。
       </p>
 
       <form
@@ -21,7 +21,7 @@ export default function NewSpacePage() {
         className="mt-6 border border-keisen bg-paper px-6 py-8"
       >
         <fieldset>
-          <legend className="text-sm">かたち</legend>
+          <legend className="text-sm">種類</legend>
           <div className="mt-1 flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2">
               <input
@@ -31,7 +31,7 @@ export default function NewSpacePage() {
                 defaultChecked
                 className="accent-ai"
               />
-              つどい(友だち・家族・サークル)
+              グループ(友だち・家族・サークル)
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -40,13 +40,13 @@ export default function NewSpacePage() {
                 value="organization"
                 className="accent-ai"
               />
-              つとめ先(チームの仕事場。配下にしごとを持てます)
+              組織(チームの仕事場。配下にプロジェクトを持てます)
             </label>
           </div>
         </fieldset>
 
         <label className="mt-6 block text-sm" htmlFor="name">
-          つどいの名前
+          スペース名
         </label>
         <input
           id="name"
@@ -69,14 +69,14 @@ export default function NewSpacePage() {
             href="/spaces"
             className="text-sm text-usuzumi underline underline-offset-4"
           >
-            もどる
+            戻る
           </Link>
           <button
             type="submit"
             disabled={pending}
             className="bg-ai px-6 py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
           >
-            {pending ? "つくっています…" : "つくる"}
+            {pending ? "作成しています…" : "作成する"}
           </button>
         </div>
       </form>

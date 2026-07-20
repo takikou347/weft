@@ -150,10 +150,10 @@ export default async function SettlementsPage({
       </section>
 
       <section className="mt-8">
-        <h4 className="border-l-4 border-ai pl-2 font-medium">立替を記す</h4>
+        <h4 className="border-l-4 border-ai pl-2 font-medium">立替を記録する</h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            記せませんでした。入力をお確かめください。
+            記録できませんでした。入力をお確かめください。
           </p>
         )}
         <form
@@ -227,7 +227,7 @@ export default async function SettlementsPage({
               type="submit"
               className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              記す
+              記録する
             </button>
           </div>
         </form>

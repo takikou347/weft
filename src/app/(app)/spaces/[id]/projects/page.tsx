@@ -5,9 +5,9 @@ import { formatYen } from "@/lib/items";
 import { createProject } from "../org-actions";
 
 const STATUS_LABELS: Record<string, string> = {
-  planned: "支度中",
-  active: "とりくみ中",
-  done: "しあげた",
+  planned: "準備中",
+  active: "進行中",
+  done: "完了",
 };
 
 // 組織ダッシュボード(F-08-5): 配下プロジェクトの予実・進捗一覧
@@ -82,7 +82,7 @@ export default async function ProjectsPage({
   return (
     <div>
       {(projects ?? []).length === 0 ? (
-        <p className="mt-4 text-sm text-usuzumi">まだしごとはありません。</p>
+        <p className="mt-4 text-sm text-usuzumi">まだプロジェクトはありません。</p>
       ) : (
         <ul className="divide-y divide-keisen border border-keisen bg-paper">
           {(projects ?? []).map((p) => {
@@ -123,11 +123,11 @@ export default async function ProjectsPage({
       {canCreate && (
         <section className="mt-8">
           <h4 className="border-l-4 border-ai pl-2 font-medium">
-            あたらしいしごと
+            新しいプロジェクト
           </h4>
           {error && (
             <p role="alert" className="mt-2 text-sm text-ai-deep">
-              つくれませんでした。入力をお確かめください。
+              作成できませんでした。入力をお確かめください。
             </p>
           )}
           <form action={createProject} className="mt-3 flex gap-2">
@@ -137,14 +137,14 @@ export default async function ProjectsPage({
               name="name"
               required
               maxLength={50}
-              placeholder="しごとの名前"
+              placeholder="プロジェクト名"
               className="flex-1 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
             />
             <button
               type="submit"
               className="border border-keisen bg-paper px-4 py-1 text-sm hover:border-ai"
             >
-              はじめる
+              作成する
             </button>
           </form>
         </section>

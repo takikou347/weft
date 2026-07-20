@@ -308,12 +308,12 @@ async function MonthView({
         </span>
         <span>
           <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full border border-sumi" />
-          つとめ
+          タスク
         </span>
         {groups.length > 0 && (
           <span>
             <span className="mr-1 inline-block h-1.5 w-1.5 rotate-45 bg-ai" />
-            なかまの共有(つどいの色)
+            メンバーの共有(スペースの色)
           </span>
         )}
       </p>

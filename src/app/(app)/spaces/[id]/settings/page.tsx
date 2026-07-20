@@ -33,7 +33,7 @@ export default async function SpaceSettingsPage({
   if (!canEdit) {
     return (
       <p className="text-sm text-usuzumi">
-        設定を変えられるのは、世話役・副世話役だけです。
+        設定を変更できるのは、オーナー・管理者だけです。
       </p>
     );
   }

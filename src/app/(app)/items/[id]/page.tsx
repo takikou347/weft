@@ -46,7 +46,7 @@ export default async function ItemDetailPage({
   if (!item) notFound();
   const isOwner = user?.id === item.owner_id;
 
-  // 共有状態(F-06-4: どこへ差し出しているかを常に見せる)
+  // 共有状態(F-06-4: どこへ共有しているかを常に見せる)
   const { data: shares } = await supabase
     .from("item_shares")
     .select("space_id")
@@ -127,7 +127,7 @@ export default async function ItemDetailPage({
 
       {sharedSpaces.length > 0 ? (
         <p className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-usuzumi">差し出し先:</span>
+          <span className="text-usuzumi">共有先:</span>
           {sharedSpaces.map((s) => (
             <span
               key={s.id}
@@ -224,7 +224,7 @@ export default async function ItemDetailPage({
             href={`/items/${item.id}/edit`}
             className="text-ai underline underline-offset-4"
           >
-            書き直す
+            編集する
           </Link>
           <form
             action={deleteItem}
@@ -234,7 +234,7 @@ export default async function ItemDetailPage({
               type="submit"
               className="text-usuzumi underline underline-offset-4 hover:text-sumi"
             >
-              破り捨てる
+              削除する
             </button>
           </form>
         </div>
@@ -242,9 +242,9 @@ export default async function ItemDetailPage({
 
       {isOwner && (myGroups ?? []).length > 0 && (
         <section className="mt-8">
-          <h3 className="border-l-4 border-ai pl-2 font-medium">差し出す</h3>
+          <h3 className="border-l-4 border-ai pl-2 font-medium">共有</h3>
           <p className="mt-1 text-xs text-usuzumi">
-            差し出した先のなかま全員に見えます。取り下げれば見えなくなり、記録はあなたの帳面に残ります。
+            共有した先のメンバー全員に見えます。共有を解除すれば見えなくなり、記録はあなたの手元に残ります。
           </p>
           <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
             {(myGroups ?? []).map((s) => {
@@ -273,7 +273,7 @@ export default async function ItemDetailPage({
                           : "border border-ai px-3 py-1 text-xs text-ai hover:bg-ai hover:text-paper"
                       }
                     >
-                      {shared ? "取り下げる" : "差し出す"}
+                      {shared ? "共有を解除する" : "共有する"}
                     </button>
                   </form>
                 </li>
@@ -305,7 +305,7 @@ export default async function ItemDetailPage({
               href={`/items/new?type=task&date=${item.occurred_on}&link=${item.id}`}
               className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
             >
-              つとめを作る
+              タスクを作る
             </Link>
           </div>
         </section>
@@ -450,7 +450,7 @@ function EventDetail({ item }: { item: Item }) {
       )}
       {p.memo && (
         <div>
-          <dt className="inline text-usuzumi">おぼえがき: </dt>
+          <dt className="inline text-usuzumi">メモ: </dt>
           <dd className="inline whitespace-pre-wrap">{p.memo}</dd>
         </div>
       )}

@@ -127,7 +127,7 @@ export default async function ExpensesPage({
       </section>
 
       <section className="mt-10">
-        <h3 className="border-l-4 border-ai pl-2 font-medium">費目の手入れ</h3>
+        <h3 className="border-l-4 border-ai pl-2 font-medium">費目の管理</h3>
         <ul className="mt-3 flex flex-wrap gap-2">
           {(categories ?? []).map((c) => (
             <li
@@ -153,7 +153,7 @@ export default async function ExpensesPage({
             type="text"
             name="name"
             maxLength={20}
-            placeholder="あたらしい費目"
+            placeholder="新しい費目"
             required
             className="flex-1 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
           />

@@ -43,7 +43,7 @@ export default async function DocsPage({
     <div>
       {docs.length === 0 ? (
         <p className="mt-2 text-sm text-usuzumi">
-          まだおぼえ書きはありません。
+          まだ文書はありません。
         </p>
       ) : (
         <ul className="divide-y divide-keisen border border-keisen bg-paper">
@@ -73,7 +73,7 @@ export default async function DocsPage({
               href={`/spaces/${id}/docs?page=${page - 1}`}
               className="text-ai underline underline-offset-4"
             >
-              あたらしい方
+              新しい方
             </Link>
           ) : (
             <span />
@@ -86,7 +86,7 @@ export default async function DocsPage({
               href={`/spaces/${id}/docs?page=${page + 1}`}
               className="text-ai underline underline-offset-4"
             >
-              ふるい方
+              古い方
             </Link>
           ) : (
             <span />
@@ -96,11 +96,11 @@ export default async function DocsPage({
 
       <section className="mt-8">
         <h4 className="border-l-4 border-ai pl-2 font-medium">
-          おぼえ書きをのこす
+          文書を保存する
         </h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            のこせませんでした。題と本文の両方を入れてください。
+            保存できませんでした。題と本文の両方を入れてください。
           </p>
         )}
         <form
@@ -134,7 +134,7 @@ export default async function DocsPage({
               type="submit"
               className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              のこす
+              保存する
             </button>
           </div>
         </form>

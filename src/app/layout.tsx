@@ -15,9 +15,9 @@ const shippori = Shippori_Mincho({
 });
 
 export const metadata: Metadata = {
-  title: "Weft — わたしの帳面",
+  title: "Weft — 予定・記録・お金をひとつに",
   description:
-    "予定・記録・お金をひとつの帳面に。選んだものだけを、大切な人に差し出せます。",
+    "予定・記録・お金をひとつのアプリで管理し、選んだものだけを共有できます。",
 };
 
 export default function RootLayout({

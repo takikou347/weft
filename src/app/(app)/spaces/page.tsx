@@ -15,20 +15,20 @@ export default async function SpacesPage() {
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-2xl">つながり</h2>
+        <h2 className="font-serif text-2xl">スペース</h2>
         <Link
           href="/spaces/new"
           className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
-          つどいをつくる
+          スペースを作る
         </Link>
       </div>
 
       {(spaces ?? []).length === 0 ? (
         <div className="mt-16 text-center text-usuzumi">
-          <p>まだつながりはありません。</p>
+          <p>まだスペースはありません。</p>
           <p className="mt-2 text-sm">
-            つどいをつくって、招待状を送ってみませんか。
+            スペースを作ると、メンバーを招待できます。
           </p>
         </div>
       ) : (

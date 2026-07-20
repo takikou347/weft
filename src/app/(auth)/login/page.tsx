@@ -27,7 +27,7 @@ function LoginForm() {
           Weft
         </h1>
         <p className="mt-2 text-center text-sm text-usuzumi">
-          わたしの帳面をひらく
+          ログイン
         </p>
 
         <form
@@ -70,14 +70,14 @@ function LoginForm() {
             disabled={pending}
             className="mt-8 w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
           >
-            {pending ? "ひらいています…" : "ひらく"}
+            {pending ? "ログインしています…" : "ログイン"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-usuzumi">
           はじめての方は{" "}
           <Link href="/signup" className="text-ai underline underline-offset-4">
-            帳面をつくる
+            新規登録
           </Link>
         </p>
       </div>

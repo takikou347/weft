@@ -94,7 +94,7 @@ export default function TermsPage() {
 
       <p className="mt-6 text-sm">
         <Link href="/" className="text-ai underline underline-offset-4">
-          もどる
+          戻る
         </Link>
       </p>
     </main>

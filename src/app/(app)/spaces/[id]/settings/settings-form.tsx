@@ -50,7 +50,7 @@ export function SettingsForm({
       />
 
       <fieldset className="mt-6">
-        <legend className="text-sm">しるしの色</legend>
+        <legend className="text-sm">テーマカラー</legend>
         <div className="mt-2 flex flex-wrap gap-3">
           {COLOR_CHOICES.map((c) => (
             <label key={c.value} className="flex items-center gap-1 text-sm">
@@ -84,7 +84,7 @@ export function SettingsForm({
           disabled={pending}
           className="bg-ai px-6 py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
         >
-          {pending ? "しまっています…" : "この設定でしまう"}
+          {pending ? "保存しています…" : "保存する"}
         </button>
       </div>
     </form>

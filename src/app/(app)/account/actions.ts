@@ -45,8 +45,8 @@ export async function deleteAccount(
   formData: FormData,
 ): Promise<AccountFormState> {
   const confirmText = String(formData.get("confirm") ?? "");
-  if (confirmText !== "とじる") {
-    return { error: "確認のことば「とじる」を入れてください。" };
+  if (confirmText !== "退会") {
+    return { error: "確認のため「退会」と入力してください。" };
   }
 
   const supabase = await createClient();

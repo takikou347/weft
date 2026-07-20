@@ -17,10 +17,10 @@ import {
 const initialState: ItemFormState = { error: null };
 
 const TYPE_HEADINGS: Record<CreatableType, { title: string; note: string }> = {
-  diary: { title: "日記を記す", note: "記したことは、あなたにしか見えません。" },
-  event: { title: "予定をひかえる", note: "ひかえた予定は、あなたにしか見えません。" },
-  expense: { title: "収支をつける", note: "つけた収支は、あなたにしか見えません。" },
-  task: { title: "つとめを書き出す", note: "書き出したつとめは、あなたにしか見えません。" },
+  diary: { title: "日記を書く", note: "書いた日記は、あなたにしか見えません。" },
+  event: { title: "予定を追加する", note: "追加した予定は、あなたにしか見えません。" },
+  expense: { title: "収支を記録する", note: "記録した収支は、あなたにしか見えません。" },
+  task: { title: "タスクを追加する", note: "追加したタスクは、あなたにしか見えません。" },
 };
 
 type Defaults = {
@@ -68,7 +68,7 @@ export function ItemForm({
   return (
     <div>
       <h2 className="font-serif text-2xl">
-        {mode === "create" ? heading.title : "書き直す"}
+        {mode === "create" ? heading.title : "編集する"}
       </h2>
       <p className="mt-1 text-sm text-usuzumi">{heading.note}</p>
 
@@ -227,7 +227,7 @@ export function ItemForm({
               className={inputCls}
             />
             <label className="mt-6 block text-sm" htmlFor="memo">
-              おぼえがき
+              メモ
             </label>
             <textarea
               id="memo"
@@ -295,7 +295,7 @@ export function ItemForm({
             </fieldset>
 
             <fieldset className="mt-4">
-              <legend className="text-sm">しるしのはんこ</legend>
+              <legend className="text-sm">スタンプ</legend>
               <div className="mt-1 flex flex-wrap gap-4 text-sm">
                 <label className="flex items-center gap-1">
                   <input
@@ -335,18 +335,14 @@ export function ItemForm({
             href={backHref}
             className="text-sm text-usuzumi underline underline-offset-4"
           >
-            もどる
+            戻る
           </Link>
           <button
             type="submit"
             disabled={pending}
             className="bg-ai px-6 py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
           >
-            {pending
-              ? "記しています…"
-              : mode === "create"
-                ? "帳面に記す"
-                : "書き直す"}
+            {pending ? "保存しています…" : "保存する"}
           </button>
         </div>
       </form>

@@ -32,20 +32,20 @@ export default async function HomePage({
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-2xl">帳面</h2>
+        <h2 className="font-serif text-2xl">ホーム</h2>
         <Link
           href="/items/new"
           className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
-          記す
+          記録する
         </Link>
       </div>
 
       {total === 0 ? (
         <div className="mt-16 text-center text-usuzumi">
-          <p>まだなにも記されていません。</p>
+          <p>まだ記録がありません。</p>
           <p className="mt-2 text-sm">
-            きょうの出来事を、ひとつ記してみませんか。
+            「記録する」から日記や予定を追加できます。
           </p>
         </div>
       ) : (

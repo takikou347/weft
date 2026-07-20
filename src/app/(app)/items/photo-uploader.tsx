@@ -71,7 +71,7 @@ export function PhotoUploader({
       if (result?.error) throw new Error(result.error);
     } catch (err) {
       console.error(err);
-      setError("しまえませんでした。時間をおいてお試しください。");
+      setError("アップロードできませんでした。時間をおいてお試しください。");
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -81,7 +81,7 @@ export function PhotoUploader({
   return (
     <div>
       <label className="inline-block cursor-pointer border border-keisen bg-paper px-3 py-2 text-sm hover:border-ai">
-        {busy ? "しまっています…" : "写真をしまう"}
+        {busy ? "アップロードしています…" : "写真を追加する"}
         <input
           ref={inputRef}
           type="file"

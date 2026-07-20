@@ -6,7 +6,7 @@ import type { Item } from "@/types/database";
 
 const PAGE_SIZE = 20;
 
-// 回覧板(F-07-3): スペースへ差し出された記録の時系列フィード
+// フィード(F-07-3): スペースへ共有された記録の時系列フィード
 export default async function SpaceFeedPage({
   params,
   searchParams,
@@ -43,9 +43,9 @@ export default async function SpaceFeedPage({
     <div>
       {total === 0 ? (
         <div className="mt-8 text-center text-usuzumi">
-          <p>まだ何もまわってきていません。</p>
+          <p>まだ共有された記録がありません。</p>
           <p className="mt-2 text-sm">
-            自分の帳面から、記録をひとつ差し出してみませんか。
+            記録の詳細ページから、このスペースに共有できます。
           </p>
         </div>
       ) : (
@@ -89,7 +89,7 @@ export default async function SpaceFeedPage({
               href={`/spaces/${id}?page=${page - 1}`}
               className="text-ai underline underline-offset-4"
             >
-              あたらしい方
+              新しい方
             </Link>
           ) : (
             <span />
@@ -102,7 +102,7 @@ export default async function SpaceFeedPage({
               href={`/spaces/${id}?page=${page + 1}`}
               className="text-ai underline underline-offset-4"
             >
-              ふるい方
+              古い方
             </Link>
           ) : (
             <span />

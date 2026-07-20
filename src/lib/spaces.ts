@@ -1,10 +1,10 @@
 import type { Space, SpaceType } from "@/types/database";
 
 export const SPACE_TYPE_LABELS: Record<SpaceType, string> = {
-  personal: "わたし",
-  group: "つどい",
-  organization: "つとめ先",
-  project: "しごと",
+  personal: "個人",
+  group: "グループ",
+  organization: "組織",
+  project: "プロジェクト",
 };
 
 // スペースのテーマカラー(F-02-6 / F-10-1)。未設定時は落ち着いた既定色を順に使う

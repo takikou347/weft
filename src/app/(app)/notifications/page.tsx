@@ -6,14 +6,14 @@ import type { AppNotification, NotificationType } from "@/types/database";
 const PAGE_SIZE = 30;
 
 const TYPE_TEXT: Record<NotificationType, string> = {
-  shared: "が記録を差し出しました",
-  comment: "がひとこと添えました",
-  reaction: "がしるしを押しました",
-  task_assigned: "がつとめの担い手にあなたを選びました",
-  settlement: "が立替を記しました",
+  shared: "が記録を共有しました",
+  comment: "がコメントしました",
+  reaction: "がリアクションしました",
+  task_assigned: "がタスクの担当者にあなたを選びました",
+  settlement: "が立替を記録しました",
 };
 
-// 便り(F-11-1): アプリ内通知
+// 通知(F-11-1): アプリ内通知
 export default async function NotificationsPage({
   searchParams,
 }: {
@@ -50,21 +50,21 @@ export default async function NotificationsPage({
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-2xl">便り</h2>
+        <h2 className="font-serif text-2xl">通知</h2>
         {hasUnread && (
           <form action={markAllRead}>
             <button
               type="submit"
               className="text-sm text-ai underline underline-offset-4"
             >
-              すべて読んだことにする
+              すべて既読にする
             </button>
           </form>
         )}
       </div>
 
       {notifications.length === 0 ? (
-        <p className="mt-12 text-center text-usuzumi">便りはまだありません。</p>
+        <p className="mt-12 text-center text-usuzumi">通知はまだありません。</p>
       ) : (
         <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
           {notifications.map((n) => {
@@ -110,7 +110,7 @@ export default async function NotificationsPage({
               href={`/notifications?page=${page - 1}`}
               className="text-ai underline underline-offset-4"
             >
-              あたらしい方
+              新しい方
             </Link>
           ) : (
             <span />
@@ -123,7 +123,7 @@ export default async function NotificationsPage({
               href={`/notifications?page=${page + 1}`}
               className="text-ai underline underline-offset-4"
             >
-              ふるい方
+              古い方
             </Link>
           ) : (
             <span />

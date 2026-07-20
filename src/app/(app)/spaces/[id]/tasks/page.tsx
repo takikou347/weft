@@ -8,12 +8,12 @@ import type { Item, TaskPayload } from "@/types/database";
 
 const STATUS_ORDER: TaskPayload["status"][] = ["todo", "doing", "done"];
 const STATUS_HEADINGS: Record<TaskPayload["status"], string> = {
-  todo: "これから",
-  doing: "とりくみ中",
-  done: "しあげた",
+  todo: "未着手",
+  doing: "進行中",
+  done: "完了",
 };
 
-// プロジェクトのつとめ(F-08-2): 担当者・期限・ステータス
+// プロジェクトのタスク(F-08-2): 担当者・期限・ステータス
 export default async function TasksPage({
   params,
   searchParams,
@@ -91,10 +91,10 @@ export default async function TasksPage({
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <span className="text-xs text-usuzumi">
-                          担い手:{" "}
+                          担当者:{" "}
                           {p.assignee
                             ? (nameOf.get(p.assignee) ?? "どなたか")
-                            : "きめず"}
+                            : "未定"}
                         </span>
                         {canMove && (
                           <span className="flex gap-2">
@@ -135,11 +135,11 @@ export default async function TasksPage({
 
       <section className="mt-8">
         <h4 className="border-l-4 border-ai pl-2 font-medium">
-          つとめを書き出す
+          タスクを追加する
         </h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            書き出せませんでした。入力をお確かめください。
+            追加できませんでした。入力をお確かめください。
           </p>
         )}
         <form
@@ -148,7 +148,7 @@ export default async function TasksPage({
         >
           <input type="hidden" name="space_id" value={id} />
           <label className="block text-sm" htmlFor="task-title">
-            なにをするか
+            タスク名
           </label>
           <input
             id="task-title"
@@ -173,7 +173,7 @@ export default async function TasksPage({
             </div>
             <div>
               <label className="block text-sm" htmlFor="task-assignee">
-                担い手
+                担当者
               </label>
               <select
                 id="task-assignee"
@@ -181,7 +181,7 @@ export default async function TasksPage({
                 defaultValue=""
                 className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
               >
-                <option value="">きめず</option>
+                <option value="">未定</option>
                 {(members ?? []).map((m) => (
                   <option key={m.user_id} value={m.user_id}>
                     {nameOf.get(m.user_id) ?? "どなたか"}
@@ -193,7 +193,7 @@ export default async function TasksPage({
               type="submit"
               className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              書き出す
+              追加する
             </button>
           </div>
         </form>

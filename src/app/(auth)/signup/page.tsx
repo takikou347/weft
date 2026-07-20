@@ -16,7 +16,7 @@ export default function SignupPage() {
           Weft
         </h1>
         <p className="mt-2 text-center text-sm text-usuzumi">
-          あたらしい帳面をつくる
+          アカウント登録
         </p>
 
         <form
@@ -31,7 +31,7 @@ export default function SignupPage() {
             name="display_name"
             type="text"
             autoComplete="nickname"
-            placeholder="帳面に記す名前"
+            placeholder="表示名"
             className="mt-1 w-full border-b border-keisen bg-transparent py-2 outline-none placeholder:text-keisen focus:border-ai"
           />
 
@@ -67,7 +67,7 @@ export default function SignupPage() {
           )}
 
           <p className="mt-6 text-xs text-usuzumi">
-            帳面をつくると、
+            登録すると、
             <Link href="/terms" className="text-ai underline underline-offset-4">
               利用規約
             </Link>
@@ -86,14 +86,14 @@ export default function SignupPage() {
             disabled={pending}
             className="mt-4 w-full bg-ai py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
           >
-            {pending ? "つくっています…" : "帳面をつくる"}
+            {pending ? "登録しています…" : "新規登録"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-usuzumi">
           すでにお持ちの方は{" "}
           <Link href="/login" className="text-ai underline underline-offset-4">
-            ひらく
+            ログイン
           </Link>
         </p>
       </div>

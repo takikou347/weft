@@ -9,7 +9,7 @@ const SECTIONS: { type: ItemType; heading: string }[] = [
   { type: "event", heading: "予定" },
   { type: "diary", heading: "日記" },
   { type: "expense", heading: "収支" },
-  { type: "task", heading: "つとめ" },
+  { type: "task", heading: "タスク" },
 ];
 
 // その日ページ(F-03-5): 日付タップでその日の全記録を一覧
@@ -52,7 +52,7 @@ export default async function DayPage({
           href={`/calendar?view=month&month=${date.slice(0, 7)}`}
           className="text-usuzumi underline underline-offset-4"
         >
-          月へもどる
+          月へ戻る
         </Link>
         <Link
           href={`/days/${addDays(date, 1)}`}
@@ -73,25 +73,25 @@ export default async function DayPage({
           href={`/items/new?type=event&date=${date}`}
           className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
-          予定をひかえる
+          予定を追加する
         </Link>
         <Link
           href={`/items/new?type=expense&date=${date}`}
           className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
-          収支をつける
+          収支を記録する
         </Link>
         <Link
           href={`/items/new?type=task&date=${date}`}
           className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
         >
-          つとめを書き出す
+          タスクを追加する
         </Link>
       </div>
 
       {items.length === 0 ? (
         <p className="mt-12 text-center text-usuzumi">
-          この日はまだ白紙です。
+          この日の記録はまだありません。
         </p>
       ) : (
         SECTIONS.filter((s) => items.some((i) => i.type === s.type)).map(

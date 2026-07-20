@@ -41,7 +41,7 @@ export default async function AppLayout({
               href="/notifications"
               className="relative text-usuzumi hover:text-sumi"
             >
-              便り
+              通知
               {(unreadCount ?? 0) > 0 && (
                 <span
                   aria-label={`未読${unreadCount}件`}
@@ -57,7 +57,7 @@ export default async function AppLayout({
                 type="submit"
                 className="text-usuzumi underline underline-offset-4 hover:text-sumi"
               >
-                とじる
+                ログアウト
               </button>
             </form>
           </div>
@@ -67,16 +67,16 @@ export default async function AppLayout({
           className="mx-auto flex w-full max-w-2xl gap-5 px-4 pb-2 text-sm"
         >
           <Link href="/calendar" className="text-usuzumi hover:text-sumi">
-            こよみ
+            カレンダー
           </Link>
           <Link href="/" className="text-usuzumi hover:text-sumi">
-            帳面
+            ホーム
           </Link>
           <Link href="/expenses" className="text-usuzumi hover:text-sumi">
             家計
           </Link>
           <Link href="/spaces" className="text-usuzumi hover:text-sumi">
-            つながり
+            スペース
           </Link>
         </nav>
       </header>

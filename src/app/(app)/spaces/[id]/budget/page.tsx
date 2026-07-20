@@ -4,9 +4,9 @@ import { formatYen } from "@/lib/items";
 import { addBudget, removeBudget, updateProjectMeta } from "../org-actions";
 
 const STATUS_LABELS: Record<string, string> = {
-  planned: "支度中",
-  active: "とりくみ中",
-  done: "しあげた",
+  planned: "準備中",
+  active: "進行中",
+  done: "完了",
 };
 
 // 予実(F-08-3): 予算の登録・実績の集計・差異表示
@@ -94,7 +94,7 @@ export default async function BudgetPage({
         </p>
       )}
       <p className="mt-2 text-xs text-usuzumi">
-        実績は、このしごとへ差し出された収支の合算です。
+        実績は、このプロジェクトへ共有された収支の合算です。
       </p>
 
       <section className="mt-8">
@@ -163,11 +163,11 @@ export default async function BudgetPage({
       {canEdit && meta && (
         <section className="mt-8">
           <h4 className="border-l-4 border-ai pl-2 font-medium">
-            しごとの手入れ
+            プロジェクトの管理
           </h4>
           {error && (
             <p role="alert" className="mt-2 text-sm text-ai-deep">
-              しまえませんでした。入力をお確かめください。
+              保存できませんでした。入力をお確かめください。
             </p>
           )}
           <form
@@ -235,7 +235,7 @@ export default async function BudgetPage({
                 type="submit"
                 className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
               >
-                しまう
+                保存する
               </button>
             </div>
           </form>

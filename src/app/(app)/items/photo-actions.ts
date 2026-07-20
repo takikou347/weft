@@ -8,7 +8,7 @@ function orderPair(a: string, b: string): [string, string] {
   return a < b ? [a, b] : [b, a];
 }
 
-// アップロード済みの写真を photo アイテムとして帳面に登録する(§6.2)
+// アップロード済みの写真を photo アイテムとして登録する(§6.2)
 // デフォルト非公開。linkTo があれば自動で双方向リンク(F-09-3)
 export async function registerPhotoItem(input: {
   path: string;
@@ -34,7 +34,7 @@ export async function registerPhotoItem(input: {
     .eq("created_by", user.id)
     .single();
   if (!personalSpace) {
-    return { error: "帳面が見つかりませんでした。" };
+    return { error: "データが見つかりませんでした。" };
   }
 
   const { data: inserted, error } = await supabase
