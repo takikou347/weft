@@ -51,6 +51,17 @@ Weft の開発フローの取り決め。GitHub Flow をベースにする。
   未設定の場合は自動でスキップされる(CI は影響を受けない)
 - 自動レビューの観点は `.claude/agents/code-reviewer.md` に定義する(RLS・共有モデルの不変条件を最優先)
 
+## リポジトリ設定(初回のみ)
+
+- デフォルトブランチは **main**。main には保護ルール(Ruleset `protect-main`)を設定する:
+  PR 経由でのみ変更可(直 push 禁止)・force push / ブランチ削除の禁止・CI green の必須化
+- 設定は `./scripts/setup-repo.sh` で行う(gh CLI・admin 権限が必要)。
+  役目を終えた古いブランチの削除も同スクリプトが行う
+- 承認レビュー数は運用開始までは 0(自己マージ可)。一般公開のタイミングで
+  Settings > Rules から `required_approving_review_count` を 1 に上げて人間の承認を必須化する
+- merge 済みのトピックブランチは削除する(Settings > General の
+  「Automatically delete head branches」を有効にすると自動化できる)
+
 ## Issue 運用
 
 - バグ報告・機能要望は `.github/ISSUE_TEMPLATE/` のフォームから起票する(自由記述も可)
