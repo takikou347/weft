@@ -68,11 +68,14 @@ export default async function SpaceCalendarPage({
       <table className="mt-3 w-full table-fixed border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
-            {WEEKDAYS.map((w) => (
+            {WEEKDAYS.map((w, i) => (
               <th
                 key={w}
                 scope="col"
-                className="border border-keisen py-1 text-xs font-normal text-usuzumi"
+                className={`border border-keisen py-1 text-xs font-normal ${
+                  i === 5 ? "text-ai" : "text-usuzumi"
+                }`}
+                style={i === 6 ? { color: "var(--tag-photo-fg)" } : undefined}
               >
                 {w}
               </th>
@@ -85,7 +88,7 @@ export default async function SpaceCalendarPage({
               {week.map((date, di) =>
                 date ? (
                   <td key={di} className="border border-keisen p-0 align-top">
-                    <span className="block min-h-14 px-0.5 pb-1 pt-0.5 sm:min-h-20">
+                    <span className="block min-h-16 px-0.5 pb-1 pt-0.5 sm:min-h-20">
                       <span
                         className={`text-xs ${
                           date === today
@@ -100,29 +103,18 @@ export default async function SpaceCalendarPage({
                           <span
                             key={item.id}
                             title={itemLine(item)}
-                            className="block"
+                            className="block truncate rounded-sm px-0.5 text-[9px] leading-[15px] sm:px-1 sm:text-[10px] sm:leading-4"
+                            style={{
+                              backgroundColor: TAG_COLORS[item.type].bg,
+                              color: TAG_COLORS[item.type].fg,
+                            }}
                           >
-                            <span
-                              className="hidden truncate rounded-sm px-1 text-[10px] leading-4 sm:block"
-                              style={{
-                                backgroundColor: TAG_COLORS[item.type].bg,
-                                color: TAG_COLORS[item.type].fg,
-                              }}
-                            >
-                              {itemLine(item)}
-                            </span>
-                            <span
-                              className="mx-0.5 block h-1.5 rounded-sm sm:hidden"
-                              style={{
-                                backgroundColor: TAG_COLORS[item.type].fg,
-                              }}
-                            />
+                            {itemLine(item)}
                           </span>
                         ))}
                         {(byDate.get(date) ?? []).length > 3 && (
-                          <span className="block px-1 text-center text-[10px] leading-4 text-usuzumi sm:text-left">
-                            +{(byDate.get(date) ?? []).length - 3}
-                            <span className="hidden sm:inline">件</span>
+                          <span className="block px-0.5 text-[9px] leading-[15px] text-usuzumi sm:px-1 sm:text-[10px] sm:leading-4">
+                            +{(byDate.get(date) ?? []).length - 3}件
                           </span>
                         )}
                       </span>

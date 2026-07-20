@@ -183,19 +183,19 @@ async function MonthView({
       <div className="mt-4 flex items-center justify-between text-sm">
         <Link
           href={`/calendar?view=month&month=${addMonths(month, -1)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           前の月
         </Link>
         <Link
           href="/calendar"
-          className="text-usuzumi underline underline-offset-4"
+          className="inline-block px-2 py-1 text-usuzumi underline underline-offset-4"
         >
           今月
         </Link>
         <Link
           href={`/calendar?view=month&month=${addMonths(month, 1)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           次の月
         </Link>
@@ -238,11 +238,14 @@ async function MonthView({
       <table className="mt-4 w-full table-fixed border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
-            {WEEKDAYS.map((w) => (
+            {WEEKDAYS.map((w, i) => (
               <th
                 key={w}
                 scope="col"
-                className="border border-keisen py-1 text-xs font-normal text-usuzumi"
+                className={`border border-keisen py-1 text-xs font-normal ${
+                  i === 5 ? "text-ai" : "text-usuzumi"
+                }`}
+                style={i === 6 ? { color: "var(--tag-photo-fg)" } : undefined}
               >
                 {w}
               </th>
@@ -257,7 +260,7 @@ async function MonthView({
                   <td key={di} className="border border-keisen p-0 align-top">
                     <Link
                       href={`/days/${date}`}
-                      className={`block min-h-14 px-0.5 pb-1 pt-0.5 hover:bg-washi sm:min-h-20 ${
+                      className={`block min-h-16 px-0.5 pb-1 pt-0.5 hover:bg-washi sm:min-h-20 ${
                         date === today ? "bg-washi" : ""
                       }`}
                     >
@@ -274,39 +277,28 @@ async function MonthView({
                         {(chipsByDate.get(date) ?? [])
                           .slice(0, MAX_CHIPS)
                           .map((c) => (
-                            <span key={c.id} title={c.label} className="block">
-                              {/* sm以上: タイトル入りチップ */}
-                              <span
-                                className="hidden truncate rounded-sm px-1 text-[10px] leading-4 sm:block"
-                                style={
-                                  c.spaceColor
-                                    ? {
-                                        backgroundColor: c.spaceColor,
-                                        color: "var(--card)",
-                                      }
-                                    : {
-                                        backgroundColor:
-                                          TAG_COLORS[c.type].bg,
-                                        color: TAG_COLORS[c.type].fg,
-                                      }
-                                }
-                              >
-                                {c.label}
-                              </span>
-                              {/* モバイル: 細い色バー(詳細は日ページで読む) */}
-                              <span
-                                className="mx-0.5 block h-1.5 rounded-sm sm:hidden"
-                                style={{
-                                  backgroundColor:
-                                    c.spaceColor ?? TAG_COLORS[c.type].fg,
-                                }}
-                              />
+                            <span
+                              key={c.id}
+                              title={c.label}
+                              className="block truncate rounded-sm px-0.5 text-[9px] leading-[15px] sm:px-1 sm:text-[10px] sm:leading-4"
+                              style={
+                                c.spaceColor
+                                  ? {
+                                      backgroundColor: c.spaceColor,
+                                      color: "var(--card)",
+                                    }
+                                  : {
+                                      backgroundColor: TAG_COLORS[c.type].bg,
+                                      color: TAG_COLORS[c.type].fg,
+                                    }
+                              }
+                            >
+                              {c.label}
                             </span>
                           ))}
                         {(chipsByDate.get(date) ?? []).length > MAX_CHIPS && (
-                          <span className="block px-1 text-center text-[10px] leading-4 text-usuzumi sm:text-left">
-                            +{(chipsByDate.get(date) ?? []).length - MAX_CHIPS}
-                            <span className="hidden sm:inline">件</span>
+                          <span className="block px-0.5 text-[9px] leading-[15px] text-usuzumi sm:px-1 sm:text-[10px] sm:leading-4">
+                            +{(chipsByDate.get(date) ?? []).length - MAX_CHIPS}件
                           </span>
                         )}
                       </span>
@@ -352,19 +344,19 @@ async function WeekView({ date }: { date: string }) {
       <div className="mt-4 flex items-center justify-between text-sm">
         <Link
           href={`/calendar?view=week&date=${addDays(date, -7)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           前の週
         </Link>
         <Link
           href={`/calendar?view=week`}
-          className="text-usuzumi underline underline-offset-4"
+          className="inline-block px-2 py-1 text-usuzumi underline underline-offset-4"
         >
           今週
         </Link>
         <Link
           href={`/calendar?view=week&date=${addDays(date, 7)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           次の週
         </Link>
@@ -415,13 +407,13 @@ async function ListView({ month }: { month: string }) {
       <div className="mt-4 flex items-center justify-between text-sm">
         <Link
           href={`/calendar?view=list&month=${addMonths(month, -1)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           前の月
         </Link>
         <Link
           href={`/calendar?view=list&month=${addMonths(month, 1)}`}
-          className="text-ai underline underline-offset-4"
+          className="inline-block px-2 py-1 text-ai underline underline-offset-4"
         >
           次の月
         </Link>
