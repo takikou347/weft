@@ -25,7 +25,7 @@ const SHOTS = [
     act: async (p) => {
       await p.getByLabel("メールアドレス").fill("tsumugi@example.com");
       await p.getByLabel("パスワード").fill("wrong-password");
-      await p.getByRole("button", { name: "ひらく" }).click();
+      await p.getByRole("button", { name: "ログイン" }).click();
       await p.getByRole("alert").waitFor();
     },
   },
@@ -38,14 +38,14 @@ const SHOTS = [
       await p.getByLabel("表示名").fill("つむぎ");
       await p.getByLabel("メールアドレス").fill("tsumugi@example.com");
       await p.getByLabel("パスワード(8文字以上)").fill("demo-tsumugi");
-      await p.getByRole("button", { name: "帳面をつくる" }).click();
+      await p.getByRole("button", { name: "新規登録" }).click();
       await p.getByRole("alert").waitFor();
     },
   },
   { file: "static-terms", persona: null, path: "/terms" },
   { file: "static-privacy", persona: null, path: "/privacy" },
 
-  // --- ホーム(帳面) ---
+  // --- ホーム ---
   { file: "home-filled", persona: "tsumugi", path: "/" },
   { file: "home-empty", persona: "matsuri", path: "/" },
 
@@ -64,7 +64,7 @@ const SHOTS = [
   { file: "day-filled", persona: "tsumugi", path: "/days/2026-07-20" },
   { file: "day-empty", persona: "tsumugi", path: "/days/2026-07-05" },
 
-  // --- 記す(作成フォーム) ---
+  // --- 記録の作成フォーム ---
   { file: "item-new-diary", persona: "tsumugi", path: "/items/new?type=diary&date=2026-07-20" },
   { file: "item-new-event", persona: "tsumugi", path: "/items/new?type=event&date=2026-07-20" },
   { file: "item-new-expense", persona: "tsumugi", path: "/items/new?type=expense&date=2026-07-20" },
@@ -74,7 +74,7 @@ const SHOTS = [
     persona: "tsumugi",
     path: "/items/new?type=diary&date=2026-07-20",
     act: async (p) => {
-      await p.getByRole("button", { name: "帳面に記す" }).click();
+      await p.getByRole("button", { name: "保存する" }).click();
       await p.getByRole("alert").waitFor();
     },
   },
@@ -126,7 +126,7 @@ const SHOTS = [
   { file: "invite-expired", persona: "koharu", path: "/invite/expiredtoken00000000" },
   { file: "invite-unknown", persona: "koharu", path: "/invite/no-such-token" },
 
-  // --- 便り・アカウント ---
+  // --- 通知・アカウント ---
   { file: "notifications-filled", persona: "tsumugi", path: "/notifications" },
   { file: "notifications-empty", persona: "matsuri", path: "/notifications" },
   { file: "account", persona: "tsumugi", path: "/account" },
@@ -137,7 +137,7 @@ async function login(page, persona) {
   await page.goto(`${BASE}/login`);
   await page.getByLabel("メールアドレス").fill(cred.email);
   await page.getByLabel("パスワード").fill(cred.password);
-  await page.getByRole("button", { name: "ひらく" }).click();
+  await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL(`${BASE}/`);
 }
 

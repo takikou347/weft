@@ -183,7 +183,7 @@ export async function updateItem(
 
   if (error) {
     console.error("item update failed:", error.code, error.message);
-    return { error: "書き直せませんでした。時間をおいてお試しください。" };
+    return { error: "更新できませんでした。時間をおいてお試しください。" };
   }
 
   revalidatePath(`/items/${id}`);

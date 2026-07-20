@@ -1,80 +1,38 @@
 # CLAUDE.md
 
-## プロジェクト概要
-
-**アプリ名: Weft** / リポジトリ: https://github.com/takikou347/weft
-
-個人の「予定・記録・お金」を一元管理し、選択したものだけをグループ・組織に共有できるWebアプリ。
-コンセプトは「人生を経営する」。名前のWeftは織物の「緯糸」に由来し、縦糸(自分の日々)に横糸(共有)を織り込んで一枚の布(思い出)にする、という思想を表す。詳細仕様は必ず `docs/requirements/requirements.md`(要件定義書)を読むこと。ドキュメント全体の案内は `docs/README.md`。
+**Weft** — 個人の「予定・記録・お金」を一元管理し、選んだものだけをグループ・組織に共有するWebアプリ。
+仕様の原本は `docs/requirements/requirements.md`、ドキュメント案内は `docs/README.md`。
 
 ## 不変条件(いかなる実装判断でも破らない)
 
 1. **デフォルト非公開**: すべてのアイテムは作成者本人にしか見えない状態で生まれる
-2. **共有は参照付与**: 共有=`item_shares`への行追加のみ。データの移動・複製はしない。共有解除で相手から見えなくなり、元データは作成者に残る
-3. **オープン型のみ**: 共有はスペース全員に等しく可視。特定個人だけに見せる機能・非公開返信は実装しない
-4. **チャット・DM・1対1メッセージは実装しない**(電気通信事業法の届出回避のための恒久方針。コメントは常にスペース全員に可視)
-5. **RLSルールは一本**: 「自分が作成者」または「共有先スペースのメンバー」のみ閲覧可。アクセス制御をクライアント側の出し分けで代替しない
-6. 上記に反する機能要望・実装案が出た場合は、実装せずISSUEに記録して人間の判断を仰ぐ
+2. **共有は参照付与**: 共有=`item_shares`への行追加のみ。複製・移動しない。解除で相手から見えなくなる
+3. **オープン型のみ**: 共有はスペース全員に等しく可視。特定個人向けの表示・非公開返信は作らない
+4. **チャット・DM・1対1メッセージは実装しない**(電気通信事業法対応の恒久方針)
+5. **RLSルールは一本**: 「自分が作成者」または「共有先スペースのメンバー」のみ閲覧可。クライアント側の出し分けで代替しない
+6. 反する要望が来たら実装せず、Issueに記録して人間の判断を仰ぐ
 
-## 技術スタック
+## スタックとコマンド
 
-- Next.js(App Router)+ TypeScript + Tailwind CSS、ホスティングはVercel
-- Supabase(Auth / Postgres / RLS / Storage)
-- スキーマ変更は必ず `supabase/migrations/` のSQLで管理。ダッシュボードからの手動変更は禁止
-- テスト: Vitest(ユニット)+ Playwright(E2E)。**RLSに関わる変更は、分離テスト(他人の非共有データが見えないこと)の追加と通過を必須とする**
-- `service_role` キーは絶対にクライアントに露出しない。秘密情報は`.env.local`のみ(コミット禁止、`.env.example`を整備)
+- Next.js(App Router)+ TypeScript + Tailwind + shadcn/ui / Supabase(Auth・Postgres・RLS・Storage)/ Vercel
+- `npm run dev` / `npm run typecheck` / `npm run lint` / `npm run test` / `npm run test:e2e`(要ローカルSupabase)
+- **完了報告の前に typecheck・lint・test を必ず実行し、結果を添える**
 
-## コマンド
+## 分野別ルール(該当分野を触るときは必ず読む)
 
-- `npm run dev` — 開発サーバー(ローカルSupabaseは `npx supabase start`。要Docker)
-- `npm run typecheck` / `npm run lint` / `npm run test` — 検証3点セット。**完了報告の前に必ず実行し、結果を添える**
-- `npm run test:e2e` — Playwright E2E(RLS分離テスト含む。ローカルSupabase起動が前提)
+- RLS・マイグレーション・Server Actions → `.claude/rules/rls.md`
+- 画面・文言・レイアウト → `.claude/rules/ui.md`
+- テスト(E2EはUI文言セレクタ依存) → `.claude/rules/testing.md`
 
-## ディレクトリ
+## 開発プロセス(詳細: docs/development/workflow.md)
 
-- `src/app/` — 画面(App Router)。`(auth)` 認証前 / `(app)` ログイン後
-- `src/components/ui/` — shadcn/uiコンポーネント(テーマ適用済み。追加は `npx shadcn add`)
-- `src/lib/` — 共有ロジック(日付・集計・精算・Supabaseクライアント)。ユニットテストの主対象
-- `supabase/migrations/` — スキーマ・RLSポリシー(変更の唯一の手段)
-- `e2e/` — Playwright E2E。**UI文言をセレクタに使うため、文言変更は必ずテストと同時に行う**
-- `docs/` — 要件定義・詳細設計・開発ルール(入口は `docs/README.md`)
-- `.claude/rules/` — 分野別の実装規約(`rls.md` / `ui.md` / `testing.md`)。**該当分野を触るときは必ず読む**
+- GitHub Flow: mainへの直pushはしない。トピックブランチ → PR → CI green → merge
+  (mainへの直push・force pushは `.claude/hooks/guard-git.sh` が遮断)
+- コミットはConventional Commits。RLS変更はコミットメッセージとPR本文で必ず明示
+- 要件にない仕様判断は、最小実装+Issue記録。フェーズ完了時は `docs/development/decisions.md` に追記
 
-## 開発プロセス
+## デザイン原則
 
-ブランチ運用・レビュー体制・コミット規約の詳細は **`docs/development/workflow.md`(開発ルール)** に従う。要点:
-
-- `docs/requirements/requirements.md` §10のフェーズ(P1〜P6)を順守。フェーズを飛ばさない
-- **GitHub Flowベース**: mainは常にデプロイ可能に保ち、変更はトピックブランチ → PR → mergeで入れる(mainへの直pushはしない)。ブランチ命名は `<type>/<説明>`(Claude Codeセッションは `claude/**` のままでよい)
-- mainへの直push・force pushは `.claude/settings.json` のフック(`.claude/hooks/guard-git.sh`)が決定論的に遮断する。GitHub側の保護ルール(Ruleset)は `scripts/setup-repo.sh` で設定する
-- コミットはConventional Commits形式。1コミット=1論理変更。要件定義書の対応項番(F-◯◯等)を書く
-- mergeの条件: CI green(型チェック・lint・テスト・RLS分離テスト)。**運用開始(一般公開)までは条件を満たせば自分でマージしてよい**。一般公開後は人間の承認必須に切り替える。自動レビューは当面使わない(有効化後は `[must]` 指摘ゼロも条件に加える)
-- **RLSポリシーを変更したときは、コミットメッセージとPR本文で必ず明示する**
-- 要件定義書に書かれていない仕様判断は、勝手に機能を膨らませず、最小実装+ISSUE記録で進める
-- 各フェーズ完了時に `docs/development/decisions.md` に設計判断を追記し、実装内容・テスト結果・対応項番をまとめて報告する
-
-## デザイン原則(最重要: 「AIが作った風」にしない)
-
-落ち着いた和のトーンは残しつつ、**可読性と分かりやすさを最優先**する。
-
-### 禁止事項
-- 紫〜青のグラデーション、グラスモーフィズム、ネオン発光、ダークテーマ既定
-- 絵文字の多用、汎用アイコンの羅列、無意味なカード影の重ね
-- 独自の造語・世界観ワードをUI文言に使うこと(下記「文言」参照)
-
-### 採用する方向性
-- **UIコンポーネントはshadcn/uiを使用**し、デフォルトの見た目のまま使わず必ずプロジェクトのテーマ(下記の配色・タイポグラフィ)を適用する
-- 配色: 生成り・紙白をベースに、文字は墨色(#333系)、差し色は1色のみ(スペースのテーマカラー)
-- タイポグラフィ: 本文は読みやすいゴシック(Zen Kaku Gothic New / Noto Sans JP等)。明朝はロゴ・大見出しなどポイント使いに留める。本文サイズ・行間・コントラストは可読性を優先して調整する
-- 質感: 紙・罫線といった文具メタファーは、過剰にならない範囲で
-- 余白を贅沢に使い、1画面の情報量を絞る。モバイルファースト
-
-### 文言
-- 画面表示の文言は**一般的で分かりやすい日本語**にする(例: 「ログイン」「新規登録」「保存する」「共有する」「メンバー」「通知」)
-- 「帳面」「差し出す」「つどい」のような世界観ワード・独自の言い回しをUIに使わない。丁寧なトーンは保ってよいが、初見のユーザーが迷わない語を選ぶ
-
-## 品質基準
-
-- モバイル(375px幅)で崩れないこと
-- 一覧APIはページネーション必須
-- 型チェック(`tsc --noEmit`)・lint・全テストがCIで通ること
+- 生成り・紙白 × 墨色 × 差し色は藍1色。shadcn/uiコンポーネント+globals.cssのテーマトークンを使う
+- 文言は一般的で分かりやすい日本語(世界観ワード禁止)。モバイルファースト(375pxで崩れない)
+- グラデーション・ガラス風・発光・絵文字の多用・過剰な影は禁止

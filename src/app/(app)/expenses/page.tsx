@@ -36,7 +36,7 @@ export default async function ExpensesPage({
           href={`/items/new?type=expense`}
           className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
-          つける
+          記録する
         </Link>
       </div>
 
@@ -45,7 +45,7 @@ export default async function ExpensesPage({
           href={`/expenses?month=${addMonths(month, -1)}`}
           className="text-ai underline underline-offset-4"
         >
-          まえの月
+          前の月
         </Link>
         <Link
           href="/expenses"
@@ -57,21 +57,21 @@ export default async function ExpensesPage({
           href={`/expenses?month=${addMonths(month, 1)}`}
           className="text-ai underline underline-offset-4"
         >
-          つぎの月
+          次の月
         </Link>
       </div>
 
       <dl className="mt-4 grid grid-cols-3 divide-x divide-keisen rounded-md border border-keisen bg-paper text-center">
         <div className="px-2 py-4">
-          <dt className="text-xs text-usuzumi">はいり</dt>
+          <dt className="text-xs text-usuzumi">収入</dt>
           <dd className="mt-1 text-sm font-medium">{formatYen(incomeTotal)}</dd>
         </div>
         <div className="px-2 py-4">
-          <dt className="text-xs text-usuzumi">つかい</dt>
+          <dt className="text-xs text-usuzumi">支出</dt>
           <dd className="mt-1 text-sm font-medium">{formatYen(expenseTotal)}</dd>
         </div>
         <div className="px-2 py-4">
-          <dt className="text-xs text-usuzumi">のこり</dt>
+          <dt className="text-xs text-usuzumi">残り</dt>
           <dd
             className={`mt-1 text-sm font-medium ${balance < 0 ? "text-ai-deep" : "text-ai"}`}
           >
@@ -121,7 +121,7 @@ export default async function ExpensesPage({
             href={`/calendar?view=list&month=${month}`}
             className="text-ai underline underline-offset-4"
           >
-            この月の明細をみる
+            この月の明細を見る
           </Link>
         </p>
       </section>
@@ -161,11 +161,11 @@ export default async function ExpensesPage({
             type="submit"
             className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
           >
-            加える
+            追加する
           </button>
         </form>
         <p className="mt-2 text-xs text-usuzumi">
-          費目を除いても、記録済みの収支はそのまま残ります。
+          費目を削除しても、記録済みの収支はそのまま残ります。
         </p>
       </section>
     </div>

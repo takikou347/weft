@@ -61,7 +61,7 @@ export default async function SpaceLayout({
 
       <nav
         aria-label="スペース内のページ"
-        className="mt-3 flex gap-4 border-b border-keisen pb-2 text-sm"
+        className="mt-3 flex gap-4 overflow-x-auto whitespace-nowrap border-b border-keisen pb-2 text-sm"
       >
         {tabs.map((t) => (
           <Link

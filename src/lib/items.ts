@@ -69,7 +69,7 @@ export const PAPER_CHOICES = [
   { value: "washi", label: "生成り" },
 ] as const;
 
-export const STAMP_CHOICES = ["花丸", "よき", "拝見", "感謝"] as const;
+export const STAMP_CHOICES = ["花丸", "いいね", "見たよ", "感謝"] as const;
 
 // 用紙のスタイル(罫線・方眼はCSSグラデーションで描く)
 export const PAPER_CLASS: Record<string, string> = {

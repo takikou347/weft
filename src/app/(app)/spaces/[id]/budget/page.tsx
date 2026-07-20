@@ -72,7 +72,7 @@ export default async function BudgetPage({
           <dd className="mt-1 text-sm font-medium">{formatYen(budgetTotal)}</dd>
         </div>
         <div className="px-2 py-4">
-          <dt className="text-xs text-usuzumi">つかい(実績)</dt>
+          <dt className="text-xs text-usuzumi">支出(実績)</dt>
           <dd className="mt-1 text-sm font-medium">
             {formatYen(actualExpense)}
           </dd>
@@ -89,7 +89,7 @@ export default async function BudgetPage({
       </dl>
       {actualIncome > 0 && (
         <p className="mt-2 text-xs text-usuzumi">
-          はいり(実績): {formatYen(actualIncome)} / 損益:{" "}
+          収入(実績): {formatYen(actualIncome)} / 損益:{" "}
           {formatYen(actualIncome - actualExpense)}
         </p>
       )}
@@ -154,7 +154,7 @@ export default async function BudgetPage({
               type="submit"
               className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
             >
-              加える
+              追加する
             </button>
           </form>
         )}

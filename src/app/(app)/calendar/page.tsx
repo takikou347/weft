@@ -169,7 +169,7 @@ async function MonthView({
           href={`/calendar?view=month&month=${addMonths(month, -1)}`}
           className="text-ai underline underline-offset-4"
         >
-          まえの月
+          前の月
         </Link>
         <Link
           href="/calendar"
@@ -181,7 +181,7 @@ async function MonthView({
           href={`/calendar?view=month&month=${addMonths(month, 1)}`}
           className="text-ai underline underline-offset-4"
         >
-          つぎの月
+          次の月
         </Link>
       </div>
 
@@ -196,7 +196,7 @@ async function MonthView({
                 : "border-sumi text-sumi"
             }`}
           >
-            わたし
+            自分の記録
           </Link>
           {groups.map((g) => (
             <Link
@@ -410,13 +410,13 @@ async function ListView({ month }: { month: string }) {
           href={`/calendar?view=list&month=${addMonths(month, -1)}`}
           className="text-ai underline underline-offset-4"
         >
-          まえの月
+          前の月
         </Link>
         <Link
           href={`/calendar?view=list&month=${addMonths(month, 1)}`}
           className="text-ai underline underline-offset-4"
         >
-          つぎの月
+          次の月
         </Link>
       </div>
 

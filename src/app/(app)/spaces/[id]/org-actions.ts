@@ -27,7 +27,7 @@ export async function createProject(formData: FormData): Promise<void> {
   redirect(`/spaces/${projectId}`);
 }
 
-// プロジェクトへ組織のメンバーを加える
+// プロジェクトへ組織のメンバーを追加する
 export async function addProjectMember(formData: FormData): Promise<void> {
   const projectId = String(formData.get("project_id") ?? "");
   const userId = String(formData.get("user_id") ?? "");

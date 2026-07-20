@@ -316,7 +316,7 @@ export default async function ItemDetailPage({
           結びついた記録
         </h3>
         {(linkedItems ?? []).length === 0 ? (
-          <p className="mt-3 text-sm text-usuzumi">まだ結びつきはありません。</p>
+          <p className="mt-3 text-sm text-usuzumi">まだリンクはありません。</p>
         ) : (
           <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(linkedItems ?? []).map((linked) => (
@@ -336,10 +336,10 @@ export default async function ItemDetailPage({
                     <input type="hidden" name="to" value={linked.id} />
                     <button
                       type="submit"
-                      aria-label="結びつきをほどく"
+                      aria-label="リンクを解除する"
                       className="ml-3 text-xs text-usuzumi underline underline-offset-4"
                     >
-                      ほどく
+                      解除する
                     </button>
                   </form>
                 )}
@@ -355,7 +355,7 @@ export default async function ItemDetailPage({
                 type="search"
                 name="q"
                 defaultValue={q ?? ""}
-                placeholder="結びつける記録を探す"
+                placeholder="リンクする記録を検索"
                 className="flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
               />
               <button
@@ -390,7 +390,7 @@ export default async function ItemDetailPage({
                         type="submit"
                         className="ml-3 text-xs text-ai underline underline-offset-4"
                       >
-                        結びつける
+                        リンクする
                       </button>
                     </form>
                   </li>

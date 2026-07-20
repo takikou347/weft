@@ -57,17 +57,17 @@ src/
 │   │   ├── actions.ts          #   signup / login / logout
 │   │   ├── login/ signup/
 │   ├── (app)/                  # 要ログイン画面(共通ヘッダー)
-│   │   ├── layout.tsx          #   ヘッダー(便り未読・ナビ)+認可
-│   │   ├── page.tsx            #   帳面(ホーム)
-│   │   ├── calendar/           #   こよみ(月/週/一覧+レイヤー)
+│   │   ├── layout.tsx          #   ヘッダー(通知未読・ナビ)+認可
+│   │   ├── page.tsx            #   ホーム
+│   │   ├── calendar/           #   カレンダー(月/週/一覧+レイヤー)
 │   │   ├── days/[date]/        #   その日ページ
 │   │   ├── items/              #   アイテムCRUD・リンク・写真
 │   │   ├── expenses/           #   家計(月次集計・費目)
-│   │   ├── spaces/             #   つながり(一覧/作成/各スペース)
-│   │   │   └── [id]/           #   回覧板/こよみ/アルバム/精算/
-│   │   │                       #   しごと/つとめ/予実/おぼえ/なかま/設定
+│   │   ├── spaces/             #   スペース(一覧/作成/各スペース)
+│   │   │   └── [id]/           #   フィード/カレンダー/アルバム/精算/
+│   │   │                       #   プロジェクト/タスク/予実/文書/メンバー/設定
 │   │   ├── invite/[token]/     #   招待の受け取り
-│   │   ├── notifications/      #   便り
+│   │   ├── notifications/      #   通知
 │   │   └── account/            #   プロフィール・退会
 ├── lib/
 │   ├── supabase/               # server / client / middleware / admin

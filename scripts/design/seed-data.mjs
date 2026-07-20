@@ -33,7 +33,7 @@ const SPACES = {
   per: {
     id: "sp-per",
     type: "personal",
-    name: "わたしの帳面",
+    name: "個人",
     parent_space_id: null,
     settings: {},
     created_by: T,
@@ -388,7 +388,7 @@ export const personas = {
         {
           id: "sp-kper",
           type: "personal",
-          name: "わたしの帳面",
+          name: "個人",
           parent_space_id: null,
           settings: {},
           created_by: K,
@@ -431,7 +431,7 @@ export const personas = {
         {
           id: "sp-mper",
           type: "personal",
-          name: "わたしの帳面",
+          name: "個人",
           parent_space_id: null,
           settings: {},
           created_by: M,
