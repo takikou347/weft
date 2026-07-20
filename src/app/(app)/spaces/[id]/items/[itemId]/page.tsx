@@ -64,7 +64,7 @@ export default async function SpaceItemPage({
     <div>
       <div className="flex items-baseline gap-3 text-sm text-usuzumi">
         <time dateTime={item.occurred_on}>{formatDateJa(item.occurred_on)}</time>
-        <span className="border border-keisen px-1.5 text-xs">
+        <span className="rounded-sm border border-keisen px-1.5 text-xs">
           {TYPE_LABELS[item.type]}
         </span>
         <span className="text-xs">
@@ -74,7 +74,7 @@ export default async function SpaceItemPage({
 
       <h3 className="mt-2 font-serif text-2xl">{item.title ?? "(無題)"}</h3>
 
-      <div className="mt-4 border border-keisen bg-paper px-6 py-6">
+      <div className="mt-4 rounded-md border border-keisen bg-paper px-6 py-6">
         {item.type === "expense" && (
           <p>
             {expensePayload(item).kind === "income" ? "+" : "−"}
@@ -124,16 +124,16 @@ export default async function SpaceItemPage({
 
       <section className="mt-8">
         <h4 className="border-l-4 border-ai pl-2 font-medium">
-          みんなの書き込み
+          コメント
         </h4>
         <p className="mt-1 text-xs text-usuzumi">
-          書き込みは、このつどいのなかま全員が読めます。
+          コメントは、このスペースのメンバー全員が読めます。
         </p>
 
         {(comments ?? []).length === 0 ? (
-          <p className="mt-3 text-sm text-usuzumi">まだ書き込みはありません。</p>
+          <p className="mt-3 text-sm text-usuzumi">まだコメントはありません。</p>
         ) : (
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(comments ?? []).map((c) => (
               <li key={c.id} className="px-4 py-3">
                 <div className="flex items-baseline justify-between">
@@ -164,7 +164,7 @@ export default async function SpaceItemPage({
           <input type="hidden" name="item_id" value={itemId} />
           <input type="hidden" name="space_id" value={spaceId} />
           <label className="block text-sm" htmlFor="comment-body">
-            ひとこと添える
+            コメント
           </label>
           <textarea
             id="comment-body"
@@ -172,14 +172,14 @@ export default async function SpaceItemPage({
             rows={3}
             required
             maxLength={2000}
-            className="mt-1 w-full resize-y border border-keisen bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-ai"
+            className="mt-1 w-full resize-y rounded-md border border-keisen bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <div className="mt-2 text-right">
             <button
               type="submit"
-              className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+              className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              書き込む
+              コメントする
             </button>
           </div>
         </form>
@@ -190,7 +190,7 @@ export default async function SpaceItemPage({
           href={`/spaces/${spaceId}`}
           className="text-sm text-usuzumi underline underline-offset-4"
         >
-          回覧板へもどる
+          フィードへ戻る
         </Link>
       </p>
     </div>

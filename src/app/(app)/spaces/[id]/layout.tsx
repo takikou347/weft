@@ -25,8 +25,8 @@ export default async function SpaceLayout({
 
   // スペースタイプ別の機能(§4.3)
   const tabs = [
-    { href: `/spaces/${id}`, label: "回覧板" },
-    { href: `/spaces/${id}/calendar`, label: "こよみ" },
+    { href: `/spaces/${id}`, label: "フィード" },
+    { href: `/spaces/${id}/calendar`, label: "カレンダー" },
     ...(space.type === "group"
       ? [
           { href: `/spaces/${id}/album`, label: "アルバム" },
@@ -34,23 +34,23 @@ export default async function SpaceLayout({
         ]
       : []),
     ...(space.type === "organization"
-      ? [{ href: `/spaces/${id}/projects`, label: "しごと" }]
+      ? [{ href: `/spaces/${id}/projects`, label: "プロジェクト" }]
       : []),
     ...(space.type === "project"
       ? [
-          { href: `/spaces/${id}/tasks`, label: "つとめ" },
+          { href: `/spaces/${id}/tasks`, label: "タスク" },
           { href: `/spaces/${id}/budget`, label: "予実" },
-          { href: `/spaces/${id}/docs`, label: "おぼえ" },
+          { href: `/spaces/${id}/docs`, label: "文書" },
         ]
       : []),
-    { href: `/spaces/${id}/members`, label: "なかま" },
+    { href: `/spaces/${id}/members`, label: "メンバー" },
     { href: `/spaces/${id}/settings`, label: "設定" },
   ];
 
   return (
     <div>
       <div
-        className="border border-keisen bg-paper px-5 py-4"
+        className="rounded-md border border-keisen bg-paper px-5 py-4"
         style={{ borderTopColor: color, borderTopWidth: 4 }}
       >
         <p className="text-xs text-usuzumi">

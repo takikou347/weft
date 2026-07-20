@@ -1,0 +1,43 @@
+name: バグ報告
+description: 動作がおかしい・壊れているところを報告する
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        完了条件まで書いてもらえると、そのまま実装依頼(@claude メンション)に使えます。
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きたか
+      description: 実際の挙動と、期待していた挙動
+      placeholder: 共有を解除したのに、相手のフィードに記録が表示され続ける
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. 日記を作成してグループに共有する
+        2. 記録の詳細画面から共有を解除する
+        3. 別アカウントでそのグループのフィードを開くと、まだ表示されている
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: どうなったら「直った」と言えるか
+      placeholder: |
+        - 共有解除後、相手のフィード・カレンダーから記録が見えなくなる
+        - RLS分離テストにこのケースが追加されている
+    validations:
+      required: false
+  - type: input
+    id: env
+    attributes:
+      label: 環境
+      placeholder: iOS Safari / Chrome (PC) など
+    validations:
+      required: false

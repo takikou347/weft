@@ -6,7 +6,7 @@ import type { Item } from "@/types/database";
 
 const PAGE_SIZE = 30;
 
-// 思い出アルバム(F-07-2): 差し出された写真・日記を時系列で
+// 思い出アルバム(F-07-2): 共有された写真・日記を時系列で
 export default async function AlbumPage({
   params,
   searchParams,
@@ -32,7 +32,7 @@ export default async function AlbumPage({
     .map((s) => s.items as unknown as Item)
     .sort((a, b) => b.occurred_on.localeCompare(a.occurred_on));
 
-  // 月ごとにまとめる(時系列の綴じ込み)
+  // 月ごとにまとめる(時系列表示)
   const byMonth = new Map<string, Item[]>();
   for (const item of items) {
     const month = item.occurred_on.slice(0, 7);
@@ -60,9 +60,9 @@ export default async function AlbumPage({
     <div>
       {items.length === 0 ? (
         <div className="mt-8 text-center text-usuzumi">
-          <p>まだ思い出は綴じられていません。</p>
+          <p>まだ写真や日記がありません。</p>
           <p className="mt-2 text-sm">
-            写真や日記を差し出すと、ここに集まります。
+            写真や日記を共有すると、ここに集まります。
           </p>
         </div>
       ) : (
@@ -85,10 +85,10 @@ export default async function AlbumPage({
                         src={photoUrls.get(item.id)}
                         alt={item.title ?? "写真"}
                         loading="lazy"
-                        className="aspect-square w-full border border-keisen object-cover"
+                        className="aspect-square w-full rounded-md border border-keisen object-cover"
                       />
                     ) : (
-                      <span className="flex aspect-square w-full items-center justify-center border border-keisen bg-washi text-xs text-usuzumi">
+                      <span className="flex aspect-square w-full items-center justify-center rounded-md border border-keisen bg-washi text-xs text-usuzumi">
                         写真
                       </span>
                     )}
@@ -97,7 +97,7 @@ export default async function AlbumPage({
                   <Link
                     key={item.id}
                     href={`/spaces/${id}/items/${item.id}`}
-                    className="flex aspect-square w-full flex-col justify-between overflow-hidden border border-keisen bg-paper p-2"
+                    className="flex aspect-square w-full flex-col justify-between overflow-hidden rounded-md border border-keisen bg-paper p-2"
                   >
                     <span className="line-clamp-4 text-xs leading-relaxed">
                       {item.title ?? item.body ?? "(無題)"}
@@ -120,7 +120,7 @@ export default async function AlbumPage({
               href={`/spaces/${id}/album?page=${page - 1}`}
               className="text-ai underline underline-offset-4"
             >
-              あたらしい方
+              新しい方
             </Link>
           ) : (
             <span />
@@ -133,7 +133,7 @@ export default async function AlbumPage({
               href={`/spaces/${id}/album?page=${page + 1}`}
               className="text-ai underline underline-offset-4"
             >
-              ふるい方
+              古い方
             </Link>
           ) : (
             <span />

@@ -27,7 +27,7 @@ export async function createProject(formData: FormData): Promise<void> {
   redirect(`/spaces/${projectId}`);
 }
 
-// プロジェクトへ組織のなかまを加える
+// プロジェクトへ組織のメンバーを加える
 export async function addProjectMember(formData: FormData): Promise<void> {
   const projectId = String(formData.get("project_id") ?? "");
   const userId = String(formData.get("user_id") ?? "");
@@ -46,7 +46,7 @@ export async function addProjectMember(formData: FormData): Promise<void> {
   redirect(`/spaces/${projectId}/members`);
 }
 
-// F-08-2 プロジェクトのつとめを作る(作成と同時にプロジェクトへ共有)
+// F-08-2 プロジェクトのタスクを作る(作成と同時にプロジェクトへ共有)
 export async function createProjectTask(formData: FormData): Promise<void> {
   const spaceId = String(formData.get("space_id") ?? "");
   const title = String(formData.get("title") ?? "").trim();

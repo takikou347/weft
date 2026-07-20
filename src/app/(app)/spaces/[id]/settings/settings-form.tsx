@@ -32,7 +32,7 @@ export function SettingsForm({
   return (
     <form
       action={formAction}
-      className="border border-keisen bg-paper px-6 py-8"
+      className="rounded-md border border-keisen bg-paper px-6 py-8"
     >
       <input type="hidden" name="space_id" value={spaceId} />
 
@@ -46,11 +46,11 @@ export function SettingsForm({
         required
         maxLength={50}
         defaultValue={currentName}
-        className="mt-1 w-full border-b border-keisen bg-transparent py-2 outline-none focus:border-ai"
+        className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 outline-none focus:border-ring focus:ring-1 focus:ring-ring"
       />
 
       <fieldset className="mt-6">
-        <legend className="text-sm">しるしの色</legend>
+        <legend className="text-sm">テーマカラー</legend>
         <div className="mt-2 flex flex-wrap gap-3">
           {COLOR_CHOICES.map((c) => (
             <label key={c.value} className="flex items-center gap-1 text-sm">
@@ -82,9 +82,9 @@ export function SettingsForm({
         <button
           type="submit"
           disabled={pending}
-          className="bg-ai px-6 py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
+          className="rounded-md bg-ai px-6 py-3 text-paper transition-colors hover:bg-ai-deep disabled:opacity-50"
         >
-          {pending ? "しまっています…" : "この設定でしまう"}
+          {pending ? "保存しています…" : "保存する"}
         </button>
       </div>
     </form>

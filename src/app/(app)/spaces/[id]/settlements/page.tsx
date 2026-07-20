@@ -65,7 +65,7 @@ export default async function SettlementsPage({
             いまのところ、貸し借りはありません。
           </p>
         ) : (
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {plan.map((t) => (
               <li key={`${t.from}-${t.to}`} className="px-4 py-3 text-sm">
                 <span className="font-medium">
@@ -91,7 +91,7 @@ export default async function SettlementsPage({
         {(settlements ?? []).length === 0 ? (
           <p className="mt-3 text-sm text-usuzumi">まだ記録はありません。</p>
         ) : (
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(settlements ?? []).map((s) => (
               <li key={s.id} className="px-4 py-3">
                 <div className="flex items-baseline justify-between">
@@ -150,15 +150,15 @@ export default async function SettlementsPage({
       </section>
 
       <section className="mt-8">
-        <h4 className="border-l-4 border-ai pl-2 font-medium">立替を記す</h4>
+        <h4 className="border-l-4 border-ai pl-2 font-medium">立替を記録する</h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            記せませんでした。入力をお確かめください。
+            記録できませんでした。入力をお確かめください。
           </p>
         )}
         <form
           action={addSettlement}
-          className="mt-3 border border-keisen bg-paper px-5 py-6"
+          className="mt-3 rounded-md border border-keisen bg-paper px-5 py-6"
         >
           <input type="hidden" name="space_id" value={id} />
 
@@ -172,7 +172,7 @@ export default async function SettlementsPage({
             required
             maxLength={100}
             placeholder="例: 宿代、レンタカー"
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+            className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
           />
 
           <label className="mt-4 block text-sm" htmlFor="settle-amount">
@@ -185,7 +185,7 @@ export default async function SettlementsPage({
             min={1}
             step={1}
             required
-            className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+            className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
 
           <label className="mt-4 block text-sm" htmlFor="settle-payer">
@@ -195,7 +195,7 @@ export default async function SettlementsPage({
             id="settle-payer"
             name="payer_id"
             defaultValue={user.id}
-            className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+            className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           >
             {members.map((m) => (
               <option key={m.user_id} value={m.user_id}>
@@ -225,9 +225,9 @@ export default async function SettlementsPage({
           <div className="mt-6 text-right">
             <button
               type="submit"
-              className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+              className="rounded-md bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              記す
+              記録する
             </button>
           </div>
         </form>

@@ -6,18 +6,21 @@ const zenKaku = Zen_Kaku_Gothic_New({
   variable: "--font-zen-kaku",
   weight: ["400", "500", "700"],
   subsets: ["latin"],
+  display: "swap",
 });
 
+// 明朝はロゴ・大見出しのポイント使いに限定する(CLAUDE.md デザイン原則)
 const shippori = Shippori_Mincho({
   variable: "--font-shippori",
   weight: ["500", "600"],
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Weft — わたしの帳面",
+  title: "Weft — 予定・記録・お金をひとつに",
   description:
-    "予定・記録・お金をひとつの帳面に。選んだものだけを、大切な人に差し出せます。",
+    "予定・記録・お金をひとつのアプリで管理し、選んだものだけを共有できます。",
 };
 
 export default function RootLayout({

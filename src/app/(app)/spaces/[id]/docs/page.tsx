@@ -43,10 +43,10 @@ export default async function DocsPage({
     <div>
       {docs.length === 0 ? (
         <p className="mt-2 text-sm text-usuzumi">
-          まだおぼえ書きはありません。
+          まだ文書はありません。
         </p>
       ) : (
-        <ul className="divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {docs.map((doc) => (
             <li key={doc.id}>
               <Link
@@ -73,7 +73,7 @@ export default async function DocsPage({
               href={`/spaces/${id}/docs?page=${page - 1}`}
               className="text-ai underline underline-offset-4"
             >
-              あたらしい方
+              新しい方
             </Link>
           ) : (
             <span />
@@ -86,7 +86,7 @@ export default async function DocsPage({
               href={`/spaces/${id}/docs?page=${page + 1}`}
               className="text-ai underline underline-offset-4"
             >
-              ふるい方
+              古い方
             </Link>
           ) : (
             <span />
@@ -96,16 +96,16 @@ export default async function DocsPage({
 
       <section className="mt-8">
         <h4 className="border-l-4 border-ai pl-2 font-medium">
-          おぼえ書きをのこす
+          文書を保存する
         </h4>
         {error && (
           <p role="alert" className="mt-2 text-sm text-ai-deep">
-            のこせませんでした。題と本文の両方を入れてください。
+            保存できませんでした。題と本文の両方を入れてください。
           </p>
         )}
         <form
           action={createProjectDoc}
-          className="mt-3 border border-keisen bg-paper px-5 py-6"
+          className="mt-3 rounded-md border border-keisen bg-paper px-5 py-6"
         >
           <input type="hidden" name="space_id" value={id} />
           <label className="block text-sm" htmlFor="doc-title">
@@ -117,7 +117,7 @@ export default async function DocsPage({
             type="text"
             required
             maxLength={100}
-            className="mt-1 w-full border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+            className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <label className="mt-4 block text-sm" htmlFor="doc-body">
             本文
@@ -127,14 +127,14 @@ export default async function DocsPage({
             name="body"
             rows={6}
             required
-            className="mt-1 w-full resize-y border border-keisen bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus:border-ai"
+            className="mt-1 w-full resize-y border border-keisen bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus:border-ring focus:ring-1 focus:ring-ring"
           />
           <div className="mt-4 text-right">
             <button
               type="submit"
-              className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+              className="rounded-md bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
             >
-              のこす
+              保存する
             </button>
           </div>
         </form>

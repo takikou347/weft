@@ -105,7 +105,7 @@ export async function createItem(
 
   if (!personalSpace) {
     console.error("personal space not found:", spaceError?.message);
-    return { error: "帳面が見つかりませんでした。開き直してください。" };
+    return { error: "データが見つかりませんでした。開き直してください。" };
   }
 
   const { data: inserted, error } = await supabase

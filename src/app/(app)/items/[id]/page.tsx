@@ -46,7 +46,7 @@ export default async function ItemDetailPage({
   if (!item) notFound();
   const isOwner = user?.id === item.owner_id;
 
-  // 共有状態(F-06-4: どこへ差し出しているかを常に見せる)
+  // 共有状態(F-06-4: どこへ共有しているかを常に見せる)
   const { data: shares } = await supabase
     .from("item_shares")
     .select("space_id")
@@ -118,7 +118,7 @@ export default async function ItemDetailPage({
     <div>
       <div className="flex items-baseline gap-3 text-sm text-usuzumi">
         <time dateTime={item.occurred_on}>{formatDateJa(item.occurred_on)}</time>
-        <span className="border border-keisen px-1.5 text-xs">
+        <span className="rounded-sm border border-keisen px-1.5 text-xs">
           {TYPE_LABELS[item.type]}
         </span>
       </div>
@@ -127,7 +127,7 @@ export default async function ItemDetailPage({
 
       {sharedSpaces.length > 0 ? (
         <p className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-usuzumi">差し出し先:</span>
+          <span className="text-usuzumi">共有先:</span>
           {sharedSpaces.map((s) => (
             <span
               key={s.id}
@@ -201,7 +201,7 @@ export default async function ItemDetailPage({
               <img
                 src={p.url}
                 alt={p.title ?? "写真"}
-                className="aspect-square w-full border border-keisen object-cover"
+                className="aspect-square w-full rounded-md border border-keisen object-cover"
               />
             </Link>
           ))}
@@ -224,7 +224,7 @@ export default async function ItemDetailPage({
             href={`/items/${item.id}/edit`}
             className="text-ai underline underline-offset-4"
           >
-            書き直す
+            編集する
           </Link>
           <form
             action={deleteItem}
@@ -234,7 +234,7 @@ export default async function ItemDetailPage({
               type="submit"
               className="text-usuzumi underline underline-offset-4 hover:text-sumi"
             >
-              破り捨てる
+              削除する
             </button>
           </form>
         </div>
@@ -242,11 +242,11 @@ export default async function ItemDetailPage({
 
       {isOwner && (myGroups ?? []).length > 0 && (
         <section className="mt-8">
-          <h3 className="border-l-4 border-ai pl-2 font-medium">差し出す</h3>
+          <h3 className="border-l-4 border-ai pl-2 font-medium">共有</h3>
           <p className="mt-1 text-xs text-usuzumi">
-            差し出した先のなかま全員に見えます。取り下げれば見えなくなり、記録はあなたの帳面に残ります。
+            共有した先のメンバー全員に見えます。共有を解除すれば見えなくなり、記録はあなたの手元に残ります。
           </p>
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(myGroups ?? []).map((s) => {
               const shared = sharedSpaceIds.has(s.id);
               return (
@@ -273,7 +273,7 @@ export default async function ItemDetailPage({
                           : "border border-ai px-3 py-1 text-xs text-ai hover:bg-ai hover:text-paper"
                       }
                     >
-                      {shared ? "取り下げる" : "差し出す"}
+                      {shared ? "共有を解除する" : "共有する"}
                     </button>
                   </form>
                 </li>
@@ -291,21 +291,21 @@ export default async function ItemDetailPage({
           <div className="mt-3 flex flex-wrap gap-2 text-sm">
             <Link
               href={`/items/new?type=diary&date=${item.occurred_on}&link=${item.id}`}
-              className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
             >
               この日の日記を書く
             </Link>
             <Link
               href={`/items/new?type=expense&date=${item.occurred_on}&link=${item.id}`}
-              className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
             >
               収支を記録する
             </Link>
             <Link
               href={`/items/new?type=task&date=${item.occurred_on}&link=${item.id}`}
-              className="border border-keisen bg-paper px-3 py-2 hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-3 py-2 hover:border-ai"
             >
-              つとめを作る
+              タスクを作る
             </Link>
           </div>
         </section>
@@ -318,14 +318,14 @@ export default async function ItemDetailPage({
         {(linkedItems ?? []).length === 0 ? (
           <p className="mt-3 text-sm text-usuzumi">まだ結びつきはありません。</p>
         ) : (
-          <ul className="mt-3 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-3 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(linkedItems ?? []).map((linked) => (
               <li
                 key={linked.id}
                 className="flex items-center justify-between px-4 py-3"
               >
                 <Link href={`/items/${linked.id}`} className="min-w-0 flex-1">
-                  <span className="mr-2 border border-keisen px-1.5 text-xs text-usuzumi">
+                  <span className="mr-2 rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                     {TYPE_LABELS[linked.type]}
                   </span>
                   <span className="text-sm">{itemLine(linked as Item)}</span>
@@ -356,17 +356,17 @@ export default async function ItemDetailPage({
                 name="q"
                 defaultValue={q ?? ""}
                 placeholder="結びつける記録を探す"
-                className="flex-1 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+                className="flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
               />
               <button
                 type="submit"
-                className="border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
+                className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
               >
                 探す
               </button>
             </form>
             {q && (
-              <ul className="mt-2 divide-y divide-keisen border border-keisen bg-paper">
+              <ul className="mt-2 divide-y divide-keisen rounded-md border border-keisen bg-paper">
                 {candidateItems.length === 0 && (
                   <li className="px-4 py-3 text-sm text-usuzumi">
                     見あたりませんでした。
@@ -378,7 +378,7 @@ export default async function ItemDetailPage({
                     className="flex items-center justify-between px-4 py-3"
                   >
                     <span className="min-w-0 flex-1 text-sm">
-                      <span className="mr-2 border border-keisen px-1.5 text-xs text-usuzumi">
+                      <span className="mr-2 rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                         {TYPE_LABELS[c.type]}
                       </span>
                       {itemLine(c as Item)}
@@ -450,7 +450,7 @@ function EventDetail({ item }: { item: Item }) {
       )}
       {p.memo && (
         <div>
-          <dt className="inline text-usuzumi">おぼえがき: </dt>
+          <dt className="inline text-usuzumi">メモ: </dt>
           <dd className="inline whitespace-pre-wrap">{p.memo}</dd>
         </div>
       )}

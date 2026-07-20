@@ -38,7 +38,7 @@ async function signup(
   await page.getByLabel("表示名").fill(user.displayName);
   await page.getByLabel("メールアドレス").fill(user.email);
   await page.getByLabel("パスワード(8文字以上)").fill(user.password);
-  await page.getByRole("button", { name: "帳面をつくる" }).click();
+  await page.getByRole("button", { name: "新規登録" }).click();
   await page.waitForURL("/");
 }
 
@@ -49,7 +49,7 @@ async function login(
   await page.goto("/login");
   await page.getByLabel("メールアドレス").fill(user.email);
   await page.getByLabel("パスワード").fill(user.password);
-  await page.getByRole("button", { name: "ひらく" }).click();
+  await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("/");
 }
 
@@ -61,7 +61,7 @@ async function newUserContext(
   return { context, page };
 }
 
-test("Aがグループを作り、招待状を発行し、日記を差し出す", async ({
+test("Aがグループを作り、招待を発行し、日記を共有する", async ({
   browser,
 }) => {
   const { context, page } = await newUserContext(browser);
@@ -71,33 +71,33 @@ test("Aがグループを作り、招待状を発行し、日記を差し出す"
   for (const title of [diaryTitle, secretTitle]) {
     await page.goto("/items/new?type=diary");
     await page.getByLabel("題(なくてもかまいません)").fill(title);
-    await page.getByRole("button", { name: "帳面に記す" }).click();
+    await page.getByRole("button", { name: "保存する" }).click();
     await page.waitForURL(/\/days\//);
   }
 
   // グループ作成(F-02-1)
   await page.goto("/spaces/new");
-  await page.getByLabel("つどいの名前").fill(groupName);
-  await page.getByRole("button", { name: "つくる" }).click();
+  await page.getByLabel("スペース名").fill(groupName);
+  await page.getByRole("button", { name: "作成する" }).click();
   await page.waitForURL(/\/spaces\/[0-9a-f-]+$/);
   groupUrl = new URL(page.url()).pathname;
 
-  // 招待状の発行(F-02-3)
+  // 招待の発行(F-02-3)
   await page.goto(`${groupUrl}/members`);
   await page
-    .getByRole("button", { name: "あたらしい招待状をしたためる" })
+    .getByRole("button", { name: "新しい招待リンクを作成する" })
     .click();
   await page.waitForURL(`${groupUrl}/members`);
   const tokenText = await page.locator("code").first().textContent();
   inviteToken = tokenText!.trim().replace("/invite/", "");
   expect(inviteToken.length).toBeGreaterThan(10);
 
-  // 日記を差し出す(F-06-1)
+  // 日記を共有する(F-06-1)
   await page.goto("/");
   await page.getByText(diaryTitle).first().click();
-  await page.getByRole("button", { name: "差し出す" }).click();
-  await expect(page.getByText("差し出し先:")).toBeVisible();
-  await expect(page.getByText("取り下げる")).toBeVisible();
+  await page.getByRole("button", { name: "共有する" }).click();
+  await expect(page.getByText("共有先:")).toBeVisible();
+  await expect(page.getByText("共有を解除する")).toBeVisible();
 
   await context.close();
 });
@@ -109,10 +109,10 @@ test("Bが招待から参加し、共有された日記だけが見える", asyn
   // 招待の受諾(F-02-3)
   await page.goto(`/invite/${inviteToken}`);
   await expect(page.getByText(groupName)).toBeVisible();
-  await page.getByRole("button", { name: "なかまに入る" }).click();
+  await page.getByRole("button", { name: "参加する" }).click();
   await page.waitForURL(new RegExp(`${groupUrl}$`));
 
-  // 回覧板(F-07-3)に共有された日記が載る
+  // フィード(F-07-3)に共有された日記が載る
   await expect(page.getByText(diaryTitle).first()).toBeVisible();
   await expect(page.getByText("あさひ さんより").first()).toBeVisible();
   // 共有されていない日記は載らない(不変条件1)
@@ -120,13 +120,13 @@ test("Bが招待から参加し、共有された日記だけが見える", asyn
 
   // コメント(F-07-4)とリアクション(F-07-5)
   await page.getByText(diaryTitle).first().click();
-  await page.getByLabel("ひとこと添える").fill(commentBody);
-  await page.getByRole("button", { name: "書き込む" }).click();
+  await page.getByLabel("コメント").fill(commentBody);
+  await page.getByRole("button", { name: "コメントする" }).click();
   await expect(page.getByText(commentBody)).toBeVisible();
   await page.getByRole("button", { name: "🌸" }).click();
   await expect(page.getByRole("button", { name: "🌸 1" })).toBeVisible();
 
-  // Bの個人こよみにレイヤーが出る(F-03-3)
+  // Bの個人カレンダーにレイヤーが出る(F-03-3)
   await page.goto("/calendar");
   await expect(page.getByText(groupName)).toBeVisible();
 
@@ -141,21 +141,21 @@ test("第三者Cにはグループもアイテムも一切見えない", async (
   await page.goto(groupUrl);
   await expect(page.getByText("404")).toBeVisible();
 
-  // つながり一覧にも出ない
+  // スペース一覧にも出ない
   await page.goto("/spaces");
   await expect(page.getByText(groupName)).toHaveCount(0);
 
   await context.close();
 });
 
-test("Aが取り下げると、Bの回覧板から消える(元データは残る)", async ({
+test("Aが共有を解除すると、Bのフィードから消える(元データは残る)", async ({
   browser,
 }) => {
   const a = await newUserContext(browser);
   await login(a.page, alice);
   await a.page.goto("/");
   await a.page.getByText(diaryTitle).first().click();
-  await a.page.getByRole("button", { name: "取り下げる" }).click();
+  await a.page.getByRole("button", { name: "共有を解除する" }).click();
   await expect(a.page.getByText("この記録は、あなたにしか見えません。")).toBeVisible();
   // 元データは作成者に残る(不変条件2)
   await expect(a.page.getByText(diaryTitle).first()).toBeVisible();

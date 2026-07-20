@@ -12,8 +12,8 @@ export const TYPE_LABELS: Record<ItemType, string> = {
   event: "予定",
   diary: "日記",
   expense: "収支",
-  task: "つとめ",
-  document: "書きもの",
+  task: "タスク",
+  document: "文書",
   photo: "写真",
 };
 
@@ -26,9 +26,9 @@ export function isCreatableType(v: string | undefined): v is CreatableType {
 }
 
 export const TASK_STATUS_LABELS: Record<TaskPayload["status"], string> = {
-  todo: "これから",
-  doing: "とりくみ中",
-  done: "しあげた",
+  todo: "未着手",
+  doing: "進行中",
+  done: "完了",
 };
 
 export function eventPayload(item: Item): EventPayload {

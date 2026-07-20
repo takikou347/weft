@@ -68,7 +68,7 @@ function ViewTabs({
           className={
             t.key === view
               ? "border border-ai bg-ai px-3 py-1 text-paper"
-              : "border border-keisen bg-paper px-3 py-1 text-usuzumi hover:border-ai"
+              : "rounded-md border border-keisen bg-paper px-3 py-1 text-usuzumi hover:border-ai"
           }
         >
           {t.label}
@@ -218,7 +218,7 @@ async function MonthView({
         </div>
       )}
 
-      <table className="mt-4 w-full border-collapse border border-keisen bg-paper text-center">
+      <table className="mt-4 w-full border-collapse rounded-md border border-keisen bg-paper text-center">
         <thead>
           <tr>
             {WEEKDAYS.map((w) => (
@@ -285,7 +285,7 @@ async function MonthView({
                     </Link>
                   </td>
                 ) : (
-                  <td key={di} className="border border-keisen bg-washi" />
+                  <td key={di} className="rounded-md border border-keisen bg-washi" />
                 ),
               )}
             </tr>
@@ -308,12 +308,12 @@ async function MonthView({
         </span>
         <span>
           <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full border border-sumi" />
-          つとめ
+          タスク
         </span>
         {groups.length > 0 && (
           <span>
             <span className="mr-1 inline-block h-1.5 w-1.5 rotate-45 bg-ai" />
-            なかまの共有(つどいの色)
+            メンバーの共有(スペースの色)
           </span>
         )}
       </p>
@@ -361,7 +361,7 @@ async function WeekView({ date }: { date: string }) {
         </Link>
       </div>
 
-      <ul className="mt-4 divide-y divide-keisen border border-keisen bg-paper">
+      <ul className="mt-4 divide-y divide-keisen rounded-md border border-keisen bg-paper">
         {days.map((d) => (
           <li key={d} className="px-4 py-3">
             <Link
@@ -378,7 +378,7 @@ async function WeekView({ date }: { date: string }) {
                       href={`/items/${item.id}`}
                       className="text-sm hover:underline"
                     >
-                      <span className="mr-2 border border-keisen px-1 text-xs text-usuzumi">
+                      <span className="mr-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
                         {TYPE_LABELS[item.type]}
                       </span>
                       {itemLine(item)}
@@ -425,14 +425,14 @@ async function ListView({ month }: { month: string }) {
           この月の記録はまだありません。
         </p>
       ) : (
-        <ul className="mt-4 divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="mt-4 divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {items.map((item) => (
             <li key={item.id} className="px-4 py-3">
               <Link href={`/items/${item.id}`} className="block">
                 <span className="text-xs text-usuzumi">
                   {formatDateJa(item.occurred_on)}({weekdayJa(item.occurred_on)})
                 </span>
-                <span className="mx-2 border border-keisen px-1 text-xs text-usuzumi">
+                <span className="mx-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
                   {TYPE_LABELS[item.type]}
                 </span>
                 <span className="text-sm">{itemLine(item)}</span>

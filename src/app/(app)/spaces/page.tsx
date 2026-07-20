@@ -15,24 +15,24 @@ export default async function SpacesPage() {
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-2xl">つながり</h2>
+        <h2 className="font-serif text-2xl">スペース</h2>
         <Link
           href="/spaces/new"
-          className="bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+          className="rounded-md bg-ai px-4 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
         >
-          つどいをつくる
+          スペースを作る
         </Link>
       </div>
 
       {(spaces ?? []).length === 0 ? (
         <div className="mt-16 text-center text-usuzumi">
-          <p>まだつながりはありません。</p>
+          <p>まだスペースはありません。</p>
           <p className="mt-2 text-sm">
-            つどいをつくって、招待状を送ってみませんか。
+            スペースを作ると、メンバーを招待できます。
           </p>
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-keisen border border-keisen bg-paper">
+        <ul className="mt-6 divide-y divide-keisen rounded-md border border-keisen bg-paper">
           {(spaces ?? []).map((space) => (
             <li key={space.id}>
               <Link
@@ -45,7 +45,7 @@ export default async function SpacesPage() {
                   style={{ backgroundColor: spaceColor(space) }}
                 />
                 <span className="flex-1 font-medium">{space.name}</span>
-                <span className="border border-keisen px-1.5 text-xs text-usuzumi">
+                <span className="rounded-sm border border-keisen px-1.5 text-xs text-usuzumi">
                   {SPACE_TYPE_LABELS[space.type]}
                 </span>
               </Link>

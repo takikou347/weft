@@ -4,9 +4,9 @@ import { formatYen } from "@/lib/items";
 import { addBudget, removeBudget, updateProjectMeta } from "../org-actions";
 
 const STATUS_LABELS: Record<string, string> = {
-  planned: "支度中",
-  active: "とりくみ中",
-  done: "しあげた",
+  planned: "準備中",
+  active: "進行中",
+  done: "完了",
 };
 
 // 予実(F-08-3): 予算の登録・実績の集計・差異表示
@@ -66,7 +66,7 @@ export default async function BudgetPage({
 
   return (
     <div>
-      <dl className="grid grid-cols-3 divide-x divide-keisen border border-keisen bg-paper text-center">
+      <dl className="grid grid-cols-3 divide-x divide-keisen rounded-md border border-keisen bg-paper text-center">
         <div className="px-2 py-4">
           <dt className="text-xs text-usuzumi">予算</dt>
           <dd className="mt-1 text-sm font-medium">{formatYen(budgetTotal)}</dd>
@@ -94,7 +94,7 @@ export default async function BudgetPage({
         </p>
       )}
       <p className="mt-2 text-xs text-usuzumi">
-        実績は、このしごとへ差し出された収支の合算です。
+        実績は、このプロジェクトへ共有された収支の合算です。
       </p>
 
       <section className="mt-8">
@@ -102,7 +102,7 @@ export default async function BudgetPage({
         {(budgets ?? []).length === 0 ? (
           <p className="mt-2 text-sm text-usuzumi">まだありません。</p>
         ) : (
-          <ul className="mt-2 divide-y divide-keisen border border-keisen bg-paper">
+          <ul className="mt-2 divide-y divide-keisen rounded-md border border-keisen bg-paper">
             {(budgets ?? []).map((b) => (
               <li
                 key={b.id}
@@ -139,7 +139,7 @@ export default async function BudgetPage({
               required
               maxLength={20}
               placeholder="費目"
-              className="w-28 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+              className="w-28 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
             />
             <input
               type="number"
@@ -148,11 +148,11 @@ export default async function BudgetPage({
               min={0}
               step={1}
               placeholder="金額(円)"
-              className="w-32 border-b border-keisen bg-transparent py-2 text-sm outline-none placeholder:text-keisen focus:border-ai"
+              className="w-32 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring"
             />
             <button
               type="submit"
-              className="border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
+              className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
             >
               加える
             </button>
@@ -163,16 +163,16 @@ export default async function BudgetPage({
       {canEdit && meta && (
         <section className="mt-8">
           <h4 className="border-l-4 border-ai pl-2 font-medium">
-            しごとの手入れ
+            プロジェクトの管理
           </h4>
           {error && (
             <p role="alert" className="mt-2 text-sm text-ai-deep">
-              しまえませんでした。入力をお確かめください。
+              保存できませんでした。入力をお確かめください。
             </p>
           )}
           <form
             action={updateProjectMeta}
-            className="mt-3 border border-keisen bg-paper px-5 py-6"
+            className="mt-3 rounded-md border border-keisen bg-paper px-5 py-6"
           >
             <input type="hidden" name="space_id" value={id} />
             <div className="flex flex-wrap items-end gap-6">
@@ -184,7 +184,7 @@ export default async function BudgetPage({
                   id="meta-status"
                   name="status"
                   defaultValue={meta.status}
-                  className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                  className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
                 >
                   {Object.entries(STATUS_LABELS).map(([v, l]) => (
                     <option key={v} value={v}>
@@ -202,7 +202,7 @@ export default async function BudgetPage({
                   name="start_on"
                   type="date"
                   defaultValue={meta.start_on ?? ""}
-                  className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                  className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
                 />
               </div>
               <div>
@@ -214,7 +214,7 @@ export default async function BudgetPage({
                   name="end_on"
                   type="date"
                   defaultValue={meta.end_on ?? ""}
-                  className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                  className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
                 />
               </div>
               <div>
@@ -228,14 +228,14 @@ export default async function BudgetPage({
                   min={0}
                   step={1}
                   defaultValue={budgetTotal}
-                  className="mt-1 border-b border-keisen bg-transparent py-2 text-sm outline-none focus:border-ai"
+                  className="mt-1 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1 focus:ring-ring"
                 />
               </div>
               <button
                 type="submit"
-                className="bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
+                className="rounded-md bg-ai px-5 py-2 text-sm text-paper transition-colors hover:bg-ai-deep"
               >
-                しまう
+                保存する
               </button>
             </div>
           </form>

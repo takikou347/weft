@@ -9,7 +9,7 @@ export default function PrivacyPage() {
       <h1 className="font-serif text-3xl">プライバシーポリシー</h1>
       <p className="mt-2 text-sm text-usuzumi">2026年7月19日 制定</p>
 
-      <div className="mt-8 space-y-8 border border-keisen bg-paper px-6 py-8 text-sm leading-loose">
+      <div className="mt-8 space-y-8 rounded-md border border-keisen bg-paper px-6 py-8 text-sm leading-loose">
         <section>
           <h2 className="border-l-4 border-ai pl-2 font-medium">
             1. 取得する情報
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
 
       <p className="mt-6 text-sm">
         <Link href="/" className="text-ai underline underline-offset-4">
-          もどる
+          戻る
         </Link>
       </p>
     </main>
