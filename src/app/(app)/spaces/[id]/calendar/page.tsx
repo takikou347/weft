@@ -8,7 +8,8 @@ import {
   normalizeMonth,
   todayIso,
 } from "@/lib/date";
-import { TYPE_LABELS, itemLine } from "@/lib/items";
+import { itemLine } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 import type { Item } from "@/types/database";
 
 const WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"];
@@ -128,9 +129,7 @@ export default async function SpaceCalendarPage({
                   <span className="text-xs text-usuzumi">
                     {item.occurred_on.slice(5).replace("-", "/")}
                   </span>
-                  <span className="mx-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
-                    {TYPE_LABELS[item.type]}
-                  </span>
+                  <TypeBadge type={item.type} className="mx-2" />
                   <span className="text-sm">{itemLine(item)}</span>
                 </Link>
               </li>

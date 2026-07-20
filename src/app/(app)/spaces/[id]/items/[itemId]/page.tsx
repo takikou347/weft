@@ -2,12 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateJa } from "@/lib/date";
-import {
-  TYPE_LABELS,
-  eventPayload,
-  expensePayload,
-  formatYen,
-} from "@/lib/items";
+import { eventPayload, expensePayload, formatYen } from "@/lib/items";
+import { TypeBadge } from "@/components/type-badge";
 import { STAMP_SET } from "@/lib/spaces";
 import { addComment, deleteComment, toggleReaction } from "../../../actions";
 import type { Item } from "@/types/database";
@@ -64,9 +60,7 @@ export default async function SpaceItemPage({
     <div>
       <div className="flex items-baseline gap-3 text-sm text-usuzumi">
         <time dateTime={item.occurred_on}>{formatDateJa(item.occurred_on)}</time>
-        <span className="rounded-sm border border-keisen px-1.5 text-xs">
-          {TYPE_LABELS[item.type]}
-        </span>
+        <TypeBadge type={item.type} />
         <span className="text-xs">
           {nameOf.get(share.shared_by) ?? "どなたか"} さんより
         </span>

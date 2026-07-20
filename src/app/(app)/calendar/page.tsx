@@ -13,7 +13,8 @@ import {
   weekOf,
   weekdayJa,
 } from "@/lib/date";
-import { TYPE_LABELS, itemLine } from "@/lib/items";
+import { itemLine } from "@/lib/items";
+import { TAG_COLORS, TypeBadge } from "@/components/type-badge";
 import { spaceColor } from "@/lib/spaces";
 import type { Item, ItemType } from "@/types/database";
 
@@ -67,7 +68,7 @@ function ViewTabs({
           aria-current={t.key === view ? "page" : undefined}
           className={
             t.key === view
-              ? "border border-ai bg-ai px-3 py-1 text-paper"
+              ? "rounded-md border border-ai bg-ai px-3 py-1 text-paper"
               : "rounded-md border border-keisen bg-paper px-3 py-1 text-usuzumi hover:border-ai"
           }
         >
@@ -90,7 +91,15 @@ async function fetchRange(first: string, last: string): Promise<Item[]> {
   return (data ?? []) as Item[];
 }
 
-const DOT_TYPES: ItemType[] = ["event", "diary", "expense", "task"];
+// セル内チップの表示順: 予定(時刻つき)を先頭に、次いでタスク・日記・収支・写真・文書
+const CHIP_ORDER: ItemType[] = [
+  "event",
+  "task",
+  "diary",
+  "expense",
+  "photo",
+  "document",
+];
 
 async function MonthView({
   month,
@@ -129,22 +138,29 @@ async function MonthView({
   const layerOf = (item: Item): string =>
     item.owner_id === user?.id ? "own" : (spaceOfItem.get(item.id) ?? "own");
 
+  // Googleカレンダー風: 各日にアイテムのタイトルをチップで並べる。
+  // 自分の記録=種別ごとの淡色チップ、メンバーの共有=スペース色の塗りチップ
+  const colorOfSpace = new Map(groups.map((g) => [g.id, spaceColor(g)]));
   const visibleItems = items.filter((i) => !hidden.has(layerOf(i)));
-  const byDate = new Map<string, Set<ItemType>>();
-  const sharedByDate = new Map<string, Set<string>>();
+  type Chip = { id: string; label: string; type: ItemType; spaceColor?: string };
+  const chipsByDate = new Map<string, Chip[]>();
   for (const item of visibleItems) {
     const layer = layerOf(item);
-    if (layer === "own") {
-      if (!byDate.has(item.occurred_on))
-        byDate.set(item.occurred_on, new Set());
-      byDate.get(item.occurred_on)!.add(item.type);
-    } else {
-      if (!sharedByDate.has(item.occurred_on))
-        sharedByDate.set(item.occurred_on, new Set());
-      sharedByDate.get(item.occurred_on)!.add(layer);
-    }
+    if (!chipsByDate.has(item.occurred_on))
+      chipsByDate.set(item.occurred_on, []);
+    chipsByDate.get(item.occurred_on)!.push({
+      id: item.id,
+      label: itemLine(item),
+      type: item.type,
+      spaceColor: layer === "own" ? undefined : colorOfSpace.get(layer),
+    });
   }
-  const colorOfSpace = new Map(groups.map((g) => [g.id, spaceColor(g)]));
+  for (const chips of chipsByDate.values()) {
+    chips.sort(
+      (a, b) => CHIP_ORDER.indexOf(a.type) - CHIP_ORDER.indexOf(b.type),
+    );
+  }
+  const MAX_CHIPS = 3;
   const today = todayIso();
   const grid = monthGrid(month);
 
@@ -240,47 +256,48 @@ async function MonthView({
                   <td key={di} className="border border-keisen p-0 align-top">
                     <Link
                       href={`/days/${date}`}
-                      className={`block min-h-14 px-1 py-1 hover:bg-washi ${
+                      className={`block min-h-20 px-0.5 pb-1 pt-0.5 hover:bg-washi ${
                         date === today ? "bg-washi" : ""
                       }`}
                     >
                       <span
-                        className={`text-sm ${
+                        className={`text-xs ${
                           date === today
                             ? "inline-block rounded-full bg-ai px-1.5 text-paper"
-                            : ""
+                            : "text-usuzumi"
                         }`}
                       >
                         {Number(date.slice(8))}
                       </span>
-                      <span className="mt-1 flex flex-wrap justify-center gap-0.5">
-                        {DOT_TYPES.filter((t) => byDate.get(date)?.has(t)).map(
-                          (t) => (
+                      <span className="mt-0.5 block space-y-0.5 text-left">
+                        {(chipsByDate.get(date) ?? [])
+                          .slice(0, MAX_CHIPS)
+                          .map((c) => (
                             <span
-                              key={t}
-                              title={TYPE_LABELS[t]}
-                              className={`inline-block h-1.5 w-1.5 rounded-full ${
-                                t === "event"
-                                  ? "bg-ai"
-                                  : t === "diary"
-                                    ? "bg-sumi"
-                                    : t === "expense"
-                                      ? "bg-usuzumi"
-                                      : "border border-sumi"
-                              }`}
-                            />
-                          ),
+                              key={c.id}
+                              title={c.label}
+                              className="block truncate rounded-sm px-1 text-[10px] leading-4"
+                              style={
+                                c.spaceColor
+                                  ? {
+                                      backgroundColor: c.spaceColor,
+                                      color: "var(--card)",
+                                    }
+                                  : {
+                                      backgroundColor:
+                                        TAG_COLORS[c.type].bg,
+                                      color: TAG_COLORS[c.type].fg,
+                                    }
+                              }
+                            >
+                              {c.label}
+                            </span>
+                          ))}
+                        {(chipsByDate.get(date) ?? []).length > MAX_CHIPS && (
+                          <span className="block px-1 text-[10px] leading-4 text-usuzumi">
+                            +{(chipsByDate.get(date) ?? []).length - MAX_CHIPS}件
+                          </span>
                         )}
-                        {[...(sharedByDate.get(date) ?? [])].map((spaceId) => (
-                          <span
-                            key={spaceId}
-                            className="inline-block h-1.5 w-1.5 rotate-45"
-                            style={{
-                              backgroundColor:
-                                colorOfSpace.get(spaceId) ?? "#3f5d7d",
-                            }}
-                          />
-                        ))}
                       </span>
                     </Link>
                   </td>
@@ -293,30 +310,11 @@ async function MonthView({
         </tbody>
       </table>
 
-      <p className="mt-3 flex flex-wrap gap-4 text-xs text-usuzumi">
-        <span>
-          <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-ai" />
-          予定
-        </span>
-        <span>
-          <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-sumi" />
-          日記
-        </span>
-        <span>
-          <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-usuzumi" />
-          収支
-        </span>
-        <span>
-          <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full border border-sumi" />
-          タスク
-        </span>
-        {groups.length > 0 && (
-          <span>
-            <span className="mr-1 inline-block h-1.5 w-1.5 rotate-45 bg-ai" />
-            メンバーの共有(スペースの色)
-          </span>
-        )}
-      </p>
+      {groups.length > 0 && (
+        <p className="mt-3 text-xs text-usuzumi">
+          塗りつぶしのチップはメンバーの共有(スペースの色)です。
+        </p>
+      )}
     </div>
   );
 }
@@ -345,7 +343,7 @@ async function WeekView({ date }: { date: string }) {
           href={`/calendar?view=week&date=${addDays(date, -7)}`}
           className="text-ai underline underline-offset-4"
         >
-          まえの週
+          前の週
         </Link>
         <Link
           href={`/calendar?view=week`}
@@ -357,7 +355,7 @@ async function WeekView({ date }: { date: string }) {
           href={`/calendar?view=week&date=${addDays(date, 7)}`}
           className="text-ai underline underline-offset-4"
         >
-          つぎの週
+          次の週
         </Link>
       </div>
 
@@ -378,9 +376,7 @@ async function WeekView({ date }: { date: string }) {
                       href={`/items/${item.id}`}
                       className="text-sm hover:underline"
                     >
-                      <span className="mr-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
-                        {TYPE_LABELS[item.type]}
-                      </span>
+                      <TypeBadge type={item.type} className="mr-2" />
                       {itemLine(item)}
                     </Link>
                   </li>
@@ -432,9 +428,7 @@ async function ListView({ month }: { month: string }) {
                 <span className="text-xs text-usuzumi">
                   {formatDateJa(item.occurred_on)}({weekdayJa(item.occurred_on)})
                 </span>
-                <span className="mx-2 rounded-sm border border-keisen px-1 text-xs text-usuzumi">
-                  {TYPE_LABELS[item.type]}
-                </span>
+                <TypeBadge type={item.type} className="mx-2" />
                 <span className="text-sm">{itemLine(item)}</span>
               </Link>
             </li>

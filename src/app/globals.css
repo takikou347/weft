@@ -25,6 +25,20 @@
   --input: #cfc7b5;
   --ring: #3f5d7d;
   --radius: 0.375rem; /* 控えめな丸み(ピル型・過剰な角丸にしない) */
+
+  /* 種別バッジの配色(和色の淡いトーン)。色の定義はこのファイルに集約し、他所でhexを書かない */
+  --tag-event-bg: #e7edf4; /* 藍 */
+  --tag-event-fg: #32485f;
+  --tag-diary-bg: #edeae3; /* 墨 */
+  --tag-diary-fg: #4a4844;
+  --tag-expense-bg: #e6ece3; /* 松葉 */
+  --tag-expense-fg: #40532f;
+  --tag-task-bg: #f0e9d8; /* 芥子 */
+  --tag-task-fg: #63511f;
+  --tag-photo-bg: #f1e5e4; /* 蘇芳 */
+  --tag-photo-fg: #663a41;
+  --tag-document-bg: #e2ecea; /* 青碧 */
+  --tag-document-fg: #2f5751;
 }
 
 @theme inline {
