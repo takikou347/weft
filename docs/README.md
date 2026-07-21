@@ -7,6 +7,7 @@ Weft のドキュメントの入口。目的別に読む場所を示す。
 | ディレクトリ / 文書 | 内容 | 対象 |
 | --- | --- | --- |
 | [requirements/requirements.md](requirements/requirements.md) | 要件定義書(機能要件 F-◯◯・非機能要件・フェーズ計画)。**仕様の原本** | 全員 |
+| [requirements/v2-direction.md](requirements/v2-direction.md) | 第2弾の方向性ドラフト(スケジュール軸+モジュール化+ワークスペース制)。**議論用・未確定** | 全員 |
 | [design/](design/README.md) | 詳細設計書(アーキテクチャ・DB/RLS・API・Server Actions・画面設計・テスト設計) | コードを読み書きする人 |
 | [development/workflow.md](development/workflow.md) | 開発ルール(ブランチ運用・レビュー体制・コミット規約・CI) | 開発に参加する人 |
 | [development/decisions.md](development/decisions.md) | 設計判断の記録(フェーズごとの経緯と理由) | 経緯を知りたい人 |
