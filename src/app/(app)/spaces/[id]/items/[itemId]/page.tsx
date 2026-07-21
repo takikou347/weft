@@ -143,7 +143,7 @@ export default async function SpaceItemPage({
                         type="submit"
                         className="text-xs text-usuzumi underline underline-offset-4"
                       >
-                        消す
+                        削除する
                       </button>
                     </form>
                   )}

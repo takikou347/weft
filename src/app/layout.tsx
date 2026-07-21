@@ -17,6 +17,10 @@ const shippori = Shippori_Mincho({
   display: "swap",
 });
 
+export const viewport = {
+  themeColor: "#f6f3ea", // 生成り(globals.cssの--backgroundと同じ)
+};
+
 export const metadata: Metadata = {
   title: "Weft — 予定・記録・お金をひとつに",
   description:

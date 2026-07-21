@@ -301,7 +301,7 @@ export default async function ItemDetailPage({
 
       <section className="mt-8">
         <h3 className="border-l-4 border-ai pl-2 font-medium">
-          結びついた記録
+          リンクした記録
         </h3>
         {(linkedItems ?? []).length === 0 ? (
           <p className="mt-3 text-sm text-usuzumi">まだリンクはありません。</p>
@@ -348,7 +348,7 @@ export default async function ItemDetailPage({
                 type="submit"
                 className="rounded-md border border-keisen bg-paper px-3 py-1 text-sm hover:border-ai"
               >
-                探す
+                検索する
               </button>
             </form>
             {q && (

@@ -59,7 +59,7 @@ export default async function SettlementsPage({
   return (
     <div>
       <section>
-        <h4 className="border-l-4 border-ai pl-2 font-medium">精算のすすめ</h4>
+        <h4 className="border-l-4 border-ai pl-2 font-medium">精算の提案</h4>
         {plan.length === 0 ? (
           <p className="mt-3 text-sm text-usuzumi">
             いまのところ、貸し借りはありません。
@@ -128,7 +128,7 @@ export default async function SettlementsPage({
                       >
                         {s.status === "open"
                           ? "精算済みにする"
-                          : "精算前にもどす"}
+                          : "精算前に戻す"}
                       </button>
                     </form>
                     <form action={deleteSettlement}>
@@ -138,7 +138,7 @@ export default async function SettlementsPage({
                         type="submit"
                         className="text-usuzumi underline underline-offset-4"
                       >
-                        消す
+                        削除する
                       </button>
                     </form>
                   </div>
@@ -163,7 +163,7 @@ export default async function SettlementsPage({
           <input type="hidden" name="space_id" value={id} />
 
           <label className="block text-sm" htmlFor="settle-title">
-            なんの立替か
+            内容
           </label>
           <input
             id="settle-title"

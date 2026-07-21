@@ -128,7 +128,7 @@ test("立替を記録すると精算案が出る", async ({ browser }) => {
   await page.waitForURL("/");
 
   await page.goto(`${groupUrl}/settlements`);
-  await page.getByLabel("なんの立替か").fill("宿代");
+  await page.getByLabel("内容").fill("宿代");
   await page.getByLabel("金額(円)").fill("24000");
   // 払った人=ぼたん(自分)、割り勘は全員(既定でチェック済み)
   await page.getByRole("button", { name: "記録する" }).click();
