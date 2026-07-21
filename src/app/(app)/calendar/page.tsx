@@ -13,7 +13,7 @@ import {
   weekOf,
   weekdayJa,
 } from "@/lib/date";
-import { itemLine } from "@/lib/items";
+import { eventPayload, itemLine } from "@/lib/items";
 import { TAG_COLORS, TypeBadge } from "@/components/type-badge";
 import { spaceColor } from "@/lib/spaces";
 import type { Item, ItemType } from "@/types/database";
@@ -91,31 +91,12 @@ async function fetchRange(first: string, last: string): Promise<Item[]> {
   return (data ?? []) as Item[];
 }
 
-// セル内チップの表示順: 予定(時刻つき)を先頭に、次いでタスク・日記・収支・写真・文書
-const CHIP_ORDER: ItemType[] = [
-  "event",
-  "task",
-  "diary",
-  "expense",
-  "photo",
-  "document",
-];
-
-async function MonthView({
-  month,
-  hidden,
-}: {
-  month: string;
-  hidden: Set<string>;
-}) {
-  const { first, last } = monthRange(month);
+// レイヤー情報(F-03-3): 各アイテムが「自分の記録(own)」か「どのスペース経由の共有か」を引く
+async function fetchLayers(items: Item[]) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const items = await fetchRange(first, last);
-
-  // レイヤー分け(F-03-3): 自分の記録=own、他人の記録=共有経由のスペース
   const otherIds = items
     .filter((i) => i.owner_id !== user?.id)
     .map((i) => i.id);
@@ -137,6 +118,29 @@ async function MonthView({
   const groups = myGroups ?? [];
   const layerOf = (item: Item): string =>
     item.owner_id === user?.id ? "own" : (spaceOfItem.get(item.id) ?? "own");
+  return { groups, layerOf };
+}
+
+// セル内チップの表示順: 予定(時刻つき)を先頭に、次いでタスク・日記・収支・写真・文書
+const CHIP_ORDER: ItemType[] = [
+  "event",
+  "task",
+  "diary",
+  "expense",
+  "photo",
+  "document",
+];
+
+async function MonthView({
+  month,
+  hidden,
+}: {
+  month: string;
+  hidden: Set<string>;
+}) {
+  const { first, last } = monthRange(month);
+  const items = await fetchRange(first, last);
+  const { groups, layerOf } = await fetchLayers(items);
 
   // Googleカレンダー風: 各日にアイテムのタイトルをチップで並べる。
   // 自分の記録=種別ごとの淡色チップ、メンバーの共有=スペース色の塗りチップ
@@ -322,15 +326,88 @@ async function MonthView({
   );
 }
 
+// "HH:MM" → 分。不正値は null
+function toMinutes(hhmm: string | undefined): number | null {
+  if (!hhmm || !/^\d{1,2}:\d{2}$/.test(hhmm)) return null;
+  const [h, m] = hhmm.split(":").map(Number);
+  if (h > 23 || m > 59) return null;
+  return h * 60 + m;
+}
+
+const HOUR_H = 44; // 時間グリッドの1時間の高さ(px)
+
 async function WeekView({ date }: { date: string }) {
   const days = weekOf(date);
   const items = await fetchRange(days[0], days[6]);
-  const byDate = new Map<string, Item[]>();
-  for (const item of items) {
-    if (!byDate.has(item.occurred_on)) byDate.set(item.occurred_on, []);
-    byDate.get(item.occurred_on)!.push(item);
-  }
+  const { groups, layerOf } = await fetchLayers(items);
+  const colorOfSpace = new Map(groups.map((g) => [g.id, spaceColor(g)]));
   const today = todayIso();
+
+  // 時刻つきの予定は時間グリッドへ、それ以外(終日予定・日記・収支等)は終日行へ
+  type TimedBlock = {
+    item: Item;
+    startMin: number;
+    endMin: number;
+    spaceColor?: string;
+  };
+  const timedByDate = new Map<string, TimedBlock[]>();
+  const alldayByDate = new Map<string, { item: Item; spaceColor?: string }[]>();
+  for (const item of items) {
+    const layer = layerOf(item);
+    const sc = layer === "own" ? undefined : colorOfSpace.get(layer);
+    const p = item.type === "event" ? eventPayload(item) : null;
+    const startMin = p && !p.all_day ? toMinutes(p.start_time) : null;
+    if (item.type === "event" && startMin !== null) {
+      const endMin = Math.max(
+        toMinutes(p?.end_time) ?? startMin + 60,
+        startMin + 30, // 最低30分ぶんの高さを確保する
+      );
+      if (!timedByDate.has(item.occurred_on))
+        timedByDate.set(item.occurred_on, []);
+      timedByDate.get(item.occurred_on)!.push({
+        item,
+        startMin,
+        endMin,
+        spaceColor: sc,
+      });
+    } else {
+      if (!alldayByDate.has(item.occurred_on))
+        alldayByDate.set(item.occurred_on, []);
+      alldayByDate.get(item.occurred_on)!.push({ item, spaceColor: sc });
+    }
+  }
+  for (const blocks of timedByDate.values())
+    blocks.sort((a, b) => a.startMin - b.startMin);
+
+  // 表示する時間帯: 予定を含む範囲 + 余白(既定は8時〜20時)
+  const allTimed = [...timedByDate.values()].flat();
+  const startHour = Math.min(
+    8,
+    ...allTimed.map((b) => Math.floor(b.startMin / 60)),
+  );
+  const endHour = Math.max(
+    20,
+    ...allTimed.map((b) => Math.ceil(b.endMin / 60)),
+  );
+  const hours = Array.from(
+    { length: endHour - startHour },
+    (_, i) => startHour + i,
+  );
+
+  // 共有アイテムはスペース内の詳細ページへ(RLS上そちらが正)
+  const detailHref = (item: Item) => {
+    const layer = layerOf(item);
+    return layer === "own"
+      ? `/items/${item.id}`
+      : `/spaces/${layer}/items/${item.id}`;
+  };
+  const chipStyle = (item: Item, sc?: string) =>
+    sc
+      ? { backgroundColor: sc, color: "var(--card)" }
+      : {
+          backgroundColor: TAG_COLORS[item.type].bg,
+          color: TAG_COLORS[item.type].fg,
+        };
 
   return (
     <div>
@@ -362,33 +439,133 @@ async function WeekView({ date }: { date: string }) {
         </Link>
       </div>
 
-      <ul className="mt-4 divide-y divide-keisen rounded-md border border-keisen bg-paper">
-        {days.map((d) => (
-          <li key={d} className="px-4 py-3">
+      <div className="mt-4 overflow-hidden rounded-md border border-keisen bg-paper">
+        {/* 曜日ヘッダー(タップでその日のページへ) */}
+        <div className="grid grid-cols-[2rem_repeat(7,1fr)] border-b border-keisen text-center sm:grid-cols-[2.5rem_repeat(7,1fr)]">
+          <div />
+          {days.map((d, i) => (
             <Link
+              key={d}
               href={`/days/${d}`}
-              className={`text-sm ${d === today ? "font-medium text-ai" : "text-usuzumi"}`}
+              className={`py-1 text-xs ${
+                i === 5 ? "text-ai" : i === 6 ? "" : "text-usuzumi"
+              }`}
+              style={i === 6 ? { color: "var(--tag-photo-fg)" } : undefined}
             >
-              {formatDateJa(d)}({weekdayJa(d)})
+              {weekdayJa(d)}
+              <span
+                className={`mx-auto mt-0.5 block h-5 w-5 leading-5 ${
+                  d === today ? "rounded-full bg-ai text-paper" : "text-sumi"
+                }`}
+              >
+                {Number(d.slice(8))}
+              </span>
             </Link>
-            {(byDate.get(d) ?? []).length > 0 && (
-              <ul className="mt-1 space-y-0.5">
-                {(byDate.get(d) ?? []).map((item) => (
-                  <li key={item.id}>
-                    <Link
-                      href={`/items/${item.id}`}
-                      className="text-sm hover:underline"
-                    >
-                      <TypeBadge type={item.type} className="mr-2" />
-                      {itemLine(item)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
+          ))}
+        </div>
+
+        {/* 終日行(時刻のない予定・日記・収支・タスク等) */}
+        <div className="grid grid-cols-[2rem_repeat(7,1fr)] border-b border-keisen sm:grid-cols-[2.5rem_repeat(7,1fr)]">
+          <div className="py-1 text-center text-[9px] text-usuzumi sm:text-[10px]">
+            終日
+          </div>
+          {days.map((d) => (
+            <div
+              key={d}
+              className="min-h-6 space-y-0.5 border-l border-keisen p-0.5"
+            >
+              {(alldayByDate.get(d) ?? []).slice(0, 3).map(({ item, spaceColor: sc }) => (
+                <Link
+                  key={item.id}
+                  href={detailHref(item)}
+                  title={itemLine(item)}
+                  className="block truncate rounded-sm px-0.5 text-[9px] leading-[15px] sm:px-1 sm:text-[10px] sm:leading-4"
+                  style={chipStyle(item, sc)}
+                >
+                  {itemLine(item)}
+                </Link>
+              ))}
+              {(alldayByDate.get(d) ?? []).length > 3 && (
+                <Link
+                  href={`/days/${d}`}
+                  className="block px-0.5 text-[9px] leading-[15px] text-usuzumi sm:text-[10px]"
+                >
+                  +{(alldayByDate.get(d) ?? []).length - 3}件
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 時間グリッド */}
+        <div className="grid grid-cols-[2rem_repeat(7,1fr)] sm:grid-cols-[2.5rem_repeat(7,1fr)]">
+          {/* 時刻の目盛り */}
+          <div className="relative" style={{ height: hours.length * HOUR_H }}>
+            {hours.map((h, i) => (
+              <span
+                key={h}
+                className="absolute right-1 -translate-y-1/2 text-[9px] text-usuzumi sm:text-[10px]"
+                style={{ top: i * HOUR_H }}
+              >
+                {i === 0 ? "" : `${h}:00`}
+              </span>
+            ))}
+          </div>
+          {days.map((d) => (
+            <div
+              key={d}
+              className="relative border-l border-keisen"
+              style={{ height: hours.length * HOUR_H }}
+            >
+              {/* 1時間ごとの罫線 */}
+              {hours.map((h, i) => (
+                <span
+                  key={h}
+                  className="absolute inset-x-0 border-t border-keisen/60"
+                  style={{ top: i * HOUR_H }}
+                />
+              ))}
+              {/* 予定ブロック */}
+              {(timedByDate.get(d) ?? []).map((b, bi) => {
+                const top = ((b.startMin - startHour * 60) / 60) * HOUR_H;
+                const height = ((b.endMin - b.startMin) / 60) * HOUR_H;
+                return (
+                  <Link
+                    key={b.item.id}
+                    href={detailHref(b.item)}
+                    title={itemLine(b.item)}
+                    className="absolute overflow-hidden rounded-sm border border-paper px-0.5 text-[9px] leading-[13px] sm:px-1 sm:text-[10px] sm:leading-4"
+                    style={{
+                      top,
+                      height,
+                      left: `${Math.min(bi, 2) * 10}%`,
+                      right: 0,
+                      zIndex: bi + 1,
+                      ...(b.spaceColor
+                        ? {
+                            backgroundColor: b.spaceColor,
+                            color: "var(--card)",
+                          }
+                        : {
+                            backgroundColor: "var(--tag-event-bg)",
+                            color: "var(--tag-event-fg)",
+                          }),
+                    }}
+                  >
+                    {b.item.title ?? "(無題)"}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {groups.length > 0 && (
+        <p className="mt-3 text-xs text-usuzumi">
+          塗りつぶしのチップはメンバーの共有(スペースの色)です。
+        </p>
+      )}
     </div>
   );
 }
