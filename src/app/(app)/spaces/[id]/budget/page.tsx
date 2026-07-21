@@ -117,7 +117,7 @@ export default async function BudgetPage({
                       <input type="hidden" name="space_id" value={id} />
                       <button
                         type="submit"
-                        aria-label={`予算「${b.category}」を消す`}
+                        aria-label={`予算「${b.category}」を削除する`}
                         className="text-xs text-usuzumi hover:text-sumi"
                       >
                         ×

@@ -412,8 +412,8 @@ async function WeekView({ date }: { date: string }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-2xl">
-          {formatDateJa(days[0])} からの週
+        <h2 className="font-serif text-xl sm:text-2xl">
+          {formatDateJa(days[0])}からの週
         </h2>
         <ViewTabs view="week" month={date.slice(0, 7)} date={date} />
       </div>
